@@ -1,3 +1,11 @@
+security:
+  oauth2:
+    client:
+      client-id: acme
+      client-secret: acmesecret
+      scope: read,write
+      auto-approve-scopes: '.*'
+
 facebook:
   client:
     clientId: 233668646673605
@@ -27,4 +35,3 @@ spring:
   resources:
     chain:
       enabled: true
-      
