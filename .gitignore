@@ -6,6 +6,4 @@ target
 .classpath
 .project
 .settings/
-node
-node_modules
-etc
+Gemfile.lock

@@ -1,0 +1,4 @@
+[[_social_login_logout]]
+= Add a Logout Button
+
+In this section we modify the <<_social_login_click,click>> app we built by adding a logout button.

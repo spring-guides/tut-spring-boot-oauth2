@@ -1,0 +1,4 @@
+[[_social_login_manual]]
+= Manual Configuration of OAuth2 Client
+
+In this section we modify the <<_social_login_logout,logout>> app we built by picking apart the "magic" in the `@EnableOAuth2Sso` annotation, manually configuring everything in there to make it explicit.

@@ -1,0 +1,4 @@
+[[_social_login_github]]
+= Login with Github
+
+In this section we modify the <<_social_login_manual,manual>> app we built by adding a link so the user can choose to authenticate with Github, in addition to the original Facebook link.

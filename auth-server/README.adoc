@@ -1,0 +1,4 @@
+[[_social_login_authserver]]
+= Hosting an Authorization Server
+
+In this section we modify the <<_social_login_github,github>> app we built by making the app into a fully-fledged OAuth2 Authorization Server, still using Facebook and Github for authentication, but able to create its own access tokens. These tokens could then be used to secure back end resources, or to do SSO with other applications that we happen to need to secure the same way.

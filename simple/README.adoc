@@ -1,0 +1,216 @@
+[[_social_login_simple]]
+= Single Sign On With Facebook
+
+In this section we create a minimal application that uses Facebook for
+authentication. This will be quite easy if we take advantage of the
+autoconfiguration features in Spring Boot.
+
+== Creating a New Project
+
+First we need to create a Spring Boot application,
+which can be done in a number of ways. The easiest is to go to
+http://start.spring.io and generate an empty project (choosing the
+"Web" dependency as starting points). Equivalently do
+this on the command line:
+
+[source]
+----
+$ mkdir ui && cd ui
+$ curl https://start.spring.io/starter.tgz -d style=web -d name=simple | tar -xzvf - 
+----
+
+You can then import that project into your favourite IDE (it's a
+normal Maven Java project by default), or just work with the files and
+"mvn" on the command line.
+
+== Add a Home Page
+
+In your new project create an `index.html` in the
+"src/main/resources/static" folder. You should add some style sheets
+and java script links so the result looks like this:
+
+.index.html
+[source,html]
+----
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <title>Demo</title>
+    <meta name="description" content=""/>
+    <meta name="viewport" content="width=device-width"/>
+    <base href="/"/>
+    <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/css/bootstrap.min.css"/>
+    <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+</head>
+<body>
+	<h1>Demo</h1>
+	<div class="container"></div>
+</body>
+</html>
+----
+
+None of this is necessary to demonstrate the OAuth2 login features,
+but we want to have a nice looking UI in the end, so we might as well
+start with some basic stuff in the home page.
+
+If you start the app and load the home page you will notice that the
+stylesheets have not been loaded. So we need to add those as well, and
+we can do that by adding some dependencies:
+
+.pom.xml
+[source,xml]
+----
+<dependency>
+	<groupId>org.webjars</groupId>
+	<artifactId>angularjs</artifactId>
+	<version>1.4.3</version>
+</dependency>
+<dependency>
+	<groupId>org.webjars</groupId>
+	<artifactId>jquery</artifactId>
+	<version>2.1.1</version>
+</dependency>
+<dependency>
+	<groupId>org.webjars</groupId>
+	<artifactId>bootstrap</artifactId>
+	<version>3.2.0</version>
+</dependency>
+<dependency>
+	<groupId>org.webjars</groupId>
+	<artifactId>webjars-locator</artifactId>
+</dependency>
+----
+
+We added Twitter bootstrap and jQuery (which is all we need right
+now), plus AngularJS for later. The other dependency is the webjars
+"locator" which is provided as a library by the webjars site, and
+which can be used by Spring to locate static assets in webjars without
+needing to know the exact versions (hence the versionless
+`/webjar/all}` links in the `index.html`). To activate the webjar
+locator we just need to activate the Spring MVC resource chain in our
+`application.properties`:
+
+.application.properties
+[source,properties]
+----
+spring.resources.chain.enabled: true
+----
+
+With those changes in place we should have a nice looking home page
+for our app.
+
+== Securing the Application
+
+To make the application secure we just need to add Spring Security as
+a dependency. If we do that the default will be to secure it with HTTP
+Basic, so since we want to do a "social" login (delegate to Facebook),
+we add the Spring Security OAuth2 dependency as well:
+
+.pom.xml
+[source,xml]
+----
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+<dependency>
+	<groupId>org.springframework.security.oauth</groupId>
+	<artifactId>spring-security-oauth2</artifactId>
+</dependency>
+----
+
+To make the link to Facebook we need an `@EnableOAuth2Sso` annotation
+on our main class:
+
+.SocialApplication.java
+[source,java]
+----
+@SpringBootApplication
+@EnableOAuth2Sso
+public class SocialApplication {
+
+  ...
+
+}
+----
+
+and some configuration (converting `application.properties` to YAML
+for better readability):
+
+.application.yml
+[source,yaml]
+----
+security:
+  oauth2:
+    client:
+      clientId: 233668646673605
+      clientSecret: 33b17e044ee6a4fa383f46ec6e28ea1d
+      accessTokenUri: https://graph.facebook.com/oauth/access_token
+      userAuthorizationUri: https://www.facebook.com/dialog/oauth
+      tokenName: oauth_token
+      authenticationScheme: query
+      clientAuthenticationScheme: form
+    resource:
+      userInfoUri: https://graph.facebook.com/me
+...
+----
+
+The configuration refers to a client app registered with Facebook in
+their https://developers.facebook.com[developers] site, in which
+you have to supply a registered redirect (home page) for the app. This
+one is registered to "localhost:8080" so it only works in an app
+running on that address.
+
+With that change you can run the app again and visit the home page at
+http://localhost:8080. Instead of the home page you should be
+redirected to login with Facebook. If you do that, and accept any
+authorizations you are asked to make, you will be redirected back to
+the local app and the home page will be visible. If you stay logged
+into Facebook, you won't have to re-authenticate with this local app,
+even if you open it in a fresh browser with no cookies and no cached
+data. (That's what Single Sign On means.)
+
+TIP: if you are working through this section with the sample application, be sure to clear your browser cache of cookies and HTTP Basic credentials. In Chrome the best way to do that for a single server is to open a new incognito window.
+
+**** 
+It is safe to grant access to this sample because only the app
+running locally can use the tokens and the scope it asks for is
+limited. Be aware of what you are approving when you log into apps
+like this though: they might ask for permission to do more than you
+are comfortable with (e.g. they might ask for permission to change
+your personal data, which would be unlikely to be in your interest).
+****
+
+== What Just Happened?
+
+The app you just wrote, in OAuth2 terms, is a Client Application and
+it uses the
+https://tools.ietf.org/html/rfc6749#section-4[authorization code
+grant] to obtain an access token from Facebook (the Authorization
+Server). It then uses the access token to ask Facebook for some
+personal details (only what you permitted it to do), including your
+login ID and your name. In this phase facebook is acting as a Resource
+Server, decoding the token that you send and checking it gives the app
+permission to access the user's details. If that process is successful
+the app inserts the user details into the Spring Security context so
+that you are authenticated.
+
+If you look in the browser tools (F12 on Chrome) and follow the
+network traffic for all the hops, you will see the redirects back and
+forth with Facebook, and finally you land back on the home page with a
+new `Set-Cookie` header. This cookie (`JSESSIONID` by default) is a
+token for your authentication details for Spring (or any
+servlet-based) applications.
+
+So we have a secure application, in the sense that to see any content
+a user has to authenticate with an external provider (Facebook). We
+wouldn't want to use that for an internet backing website, but for
+basic identification purposes, and to segregate content between
+different users of your site, it's an excellent starting point, which
+explains why this kind of authentication is very popular these
+days. In the next section we are going to add some basic features to
+the application, and also make it a bit more obvious to users what is
+going on when they get that initial redirect to Facebook.

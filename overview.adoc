@@ -1,0 +1,62 @@
+This guide shows you how to build a sample app doing various things
+with "social login" using https://tools.ietf.org/html/rfc6749[OAuth2]
+and http://projects.spring.io/spring-boot/[Spring Boot]. It starts
+with a simple, single-provider single-sign on, and works up to a
+self-hosted OAuth2 Authorization Server with a choice of
+authentication providers (https://developers.facebook.com[Facebook] or
+https://developer.github.com/[Github]). The samples are all
+single-page apps using Spring Boot and Spring OAuth on the back
+end. They also all use https://angularjs.org/[AngularJS] on the front
+end, but the changes needed to convert to a different JavaScript
+framework or to use server side rendering would be minimal.
+
+There are several samples building on each other adding new features:
+
+* <<_social_login_simple,**simple**>>: a very basic static app with just a home page and
+unconditional login through via Spring Boot's `@EnableOAuth2Sso` (if
+you visit the home page you will be automatically redirected to
+Facebook).
+
+* <<_social_login_click,**click**>>: adds an explicit link that the user has to click to
+login.
+
+* <<_social_login_logout,**logout**>>: adds a logout link as well for authenticated users.
+
+* <<_social_login_manual,**manual**>>: shows how the `@EnableOAuth2Sso` works by unpicking it
+and configuring all its pieces manually.
+
+* <<_social_login_github,**gitub**>>: adds a second login provider in Github, so the user can
+choose on the home page which one to use.
+
+* <<_social_login_authserver,**auth-server**>>: turns the app into a fully-fledged OAuth2
+Authorization Server, able to issue its own tokens, but still using
+the external OAuth2 providers for authentication.
+
+Each of them can be imported into an IDE and there is a main class
+`SocialApplication` that you can run there to start the apps. They all
+come up with a home page on http://localhost:8080 (and all require
+that you have at least a Facebook account if you want to log in and
+see the content). You can also run all the apps on the command line
+using `mvn spring-boot:run` or by building the jar file and running it
+with `mvn package` and `java -jar target/*.jar` (per the
+http://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/htmlsingle/#getting-started-first-application-run[Spring
+Boot docs] and other
+https://spring.io/guides/gs/spring-boot/[available
+documentation]). There is no need to install Maven if you use the
+https://github.com/takari/maven-wrapper[wrapper] at the top level,
+e.g.
+
+```
+$ cd simple
+$ ../mvnw package
+$ java -jar target/*.jar
+```
+
+NOTE: The apps all work on `localhost:8080` because they use OAuth2
+clients registered with Facebook and Github for that address. To run
+them on a different host or port, you need to register your own apps
+and put the credentials in the config files. There is no danger of
+leaking your Facebook or Github credentials beyond localhost if you
+use the default values, but be careful what you expose on the
+internet, and don't put your own app registrations in public source
+control.
