@@ -32,6 +32,14 @@ choose on the home page which one to use.
 Authorization Server, able to issue its own tokens, but still using
 the external OAuth2 providers for authentication.
 
+NOTE: The changes needed to migrate from one app to the next one in
+the feature ladder can be tracked in the source (the source code is
+https://github.com/dsyer/spring-boot-oauth2[in Github]). The first 6
+changes in the repository are transforming a single app so you can
+easily see the differences. Any further differences you might see
+between the app in those early commits and the final state you see in
+the guide are cosmetic.
+
 Each of them can be imported into an IDE and there is a main class
 `SocialApplication` that you can run there to start the apps. They all
 come up with a home page on http://localhost:8080 (and all require
@@ -60,3 +68,4 @@ leaking your Facebook or Github credentials beyond localhost if you
 use the default values, but be careful what you expose on the
 internet, and don't put your own app registrations in public source
 control.
+

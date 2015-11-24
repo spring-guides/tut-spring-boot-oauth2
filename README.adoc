@@ -21,4 +21,19 @@ include::manual/README.adoc[leveloffset=+1]
 include::github/README.adoc[leveloffset=+1]
 include::auth-server/README.adoc[leveloffset=+1]
 
+== Conclusion
+
+We have seen how to use Spring Boot and Spring Security to build apps
+in a number of styles with very little effort. The main theme running
+through all of the samples is "social" login using an external OAuth2
+provider. The final sample could even be used to provide such a
+service "internally" because it has the same basic features that the
+external providers have. All of the sample apps can be easily extended
+and re-configured for more specific use cases, usually with nothing
+more than a configuration file change. Remember if you use versions of
+the samples in your own servers to register with Facebook or Github
+(or similar) and get client credentials for your own host
+addresses. And remember not to put those credentials in source
+control!
+
 include::https://raw.githubusercontent.com/spring-guides/getting-started-macros/master/footer.adoc[]
