@@ -22,11 +22,11 @@ the external OAuth2 providers for authentication.
 
 NOTE: The changes needed to migrate from one app to the next one in
 the feature ladder can be tracked in the source (the source code is
-https://github.com/dsyer/spring-boot-oauth2[in Github]). The first 6
-changes in the repository are transforming a single app so you can
-easily see the differences. Any further differences you might see
-between the app in those early commits and the final state you see in
-the guide are cosmetic.
+https://github.com/spring-guides/tut-spring-boot-oauth2[in
+Github]). The first 6 changes in the repository are transforming a
+single app so you can easily see the differences. Any further
+differences you might see between the app in those early commits and
+the final state you see in the guide are cosmetic.
 
 Each of them can be imported into an IDE and there is a main class
 `SocialApplication` that you can run there to start the apps. They all
