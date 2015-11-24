@@ -173,7 +173,8 @@ for an access token.
 
 Password grant is appropriate for a native or mobile application, and
 where you have a local user database to store and validate the
-credentials. For an app with "social" login, like ours, you need a
+credentials. For a web app, or any app with "social" login, like ours,
+you need the "authorization code" grant, and that means you need a
 browser to handle redirects and render the user interfaces from the
 external providers.
 
