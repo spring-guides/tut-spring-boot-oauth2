@@ -227,15 +227,24 @@ make an alias to it on a new path:
 ----
 @RequestMapping({ "/user", "/me" })
 public Map<String, String> user(Principal principal) {
-  ...
+  Map<String, String> map = new LinkedHashMap<>();
+  map.put("name", principal.getName());
+  return map;
 }
 ----
 
-The "/me" path can then be protected with the access token by
-declaring that our app is a Resource Server (as well as an
-Authorization Server). We create a new configuration class (as n inner
-class in the main app, but it could also be split out into a separate
-standalone class):
+NOTE: We have converted the `Principal` into a `Map` so as to hide the
+parts that we don't want to expose to the browser, and also to unfify
+the behaviour of the endpoint between the two external authentication
+providers. In principle we could add more detail here, like a
+provider-specific unique identifier for instance, or an e-mail address
+if it's available.
+
+The "/me" path can now be protected with the access token by declaring
+that our app is a Resource Server (as well as an Authorization
+Server). We create a new configuration class (as n inner class in the
+main app, but it could also be split out into a separate standalone
+class):
 
 .SocialApplication.java
 [source,java]
