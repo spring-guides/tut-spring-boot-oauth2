@@ -156,8 +156,26 @@ Client credentials tokens are useful in some circumstances (like
 testing that the token endpoint works), but to take advantage of all
 the features of our server we want to be able to create tokens for
 users. To get a token on behalf of a user of our app we need to be
-able to authenticate the user, which means we need a browser, so we
-might go the whole hog and create a test application.
+able to authenticate the user. If you were watching the logs carefully
+when the app started up you would have seen a random password being
+logged for the default Spring Boot user (per the
+http://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/htmlsingle/#boot-features-security[Spring
+Boot User Guide]). You can use this password to get a token on behalf of the user with id "user":
+
+```
+$ curl acme:acmesecret@localhost:8080/oauth/token -d grant_type=password -d username=user -d password=...
+{"access_token":"aa49e025-c4fe-4892-86af-15af2e6b72a2","token_type":"bearer","refresh_token":"97a9f978-7aad-4af7-9329-78ff2ce9962d","expires_in":43199,"scope":"read write"}
+```
+
+where "..." should be replaced with the actual password. This is
+called a "password" grant, where you exchange a username and password
+for an access token. 
+
+Password grant is appropriate for a native or mobile application, and
+where you have a local user database to store and validate the
+credentials. For an app with "social" login, like ours, you need a
+browser to handle redirects and render the user interfaces from the
+external providers.
 
 == Creating a Client Application
 
