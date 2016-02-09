@@ -32,6 +32,7 @@ include::logout/README.adoc[leveloffset=+1]
 include::manual/README.adoc[leveloffset=+1]
 include::github/README.adoc[leveloffset=+1]
 include::auth-server/README.adoc[leveloffset=+1]
+include::custom-error/README.adoc[leveloffset=+1]
 
 == Conclusion
 

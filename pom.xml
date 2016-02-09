@@ -15,6 +15,7 @@
 		<module>manual</module>
 		<module>github</module>
 		<module>auth-server</module>
+		<module>custom-auth</module>
 	</modules>
 	
     <build>
