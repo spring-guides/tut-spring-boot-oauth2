@@ -148,7 +148,7 @@ The simplest way to get a token up to now is to grab one as the "acme"
 client. You can see this if you run the app and curl it:
 
 ```
-$ curl acme:acmesecret@localhost:8080/oauth/token -d grant_type=client_redentials
+$ curl acme:acmesecret@localhost:8080/oauth/token -d grant_type=client_credentials
 {"access_token":"370592fd-b9f8-452d-816a-4fd5c6b4b8a6","token_type":"bearer","expires_in":43199,"scope":"read write"}
 ```
 
