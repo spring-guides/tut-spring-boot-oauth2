@@ -110,16 +110,20 @@ application, just for conciseness.)
 == Generating a 401 in the Server
 
 A 401 response will already be coming from Spring Security if the user
-cannot or does not want to login with Github. What we set out to do
-was extend that rule to reject users that are not in the right
-origanization. It is easy to use the Github API to find out more about
-the user, including his organizations, so we just need to plug that
-into the right part of the authentication process. Fortunately, for
-such a simple use case, Spring Boot has provided an easy extension
-point: if we declare a `@Bean` of type `AuthoritiesExtractor` it will
-be used to construct the authorities (typically "roles") of an
-authenticated user. We can use that hook to assert the the user is in
-the correct orignization, and throw an exception if not:
+cannot or does not want to login with Github, so the app is already
+working if you fail to authenticate with Github (e.g. by rejecting the
+token grant).
+
+To spice things up a bit we will extend the authentication rule to
+reject users that are not in the right organization. It is easy to use
+the Github API to find out more about the user, so we just need to
+plug that into the right part of the authentication
+process. Fortunately, for such a simple use case, Spring Boot has
+provided an easy extension point: if we declare a `@Bean` of type
+`AuthoritiesExtractor` it will be used to construct the authorities
+(typically "roles") of an authenticated user. We can use that hook to
+assert the the user is in the correct orignization, and throw an
+exception if not:
 
 .SocialApplication.java
 [source,java]
