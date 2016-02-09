@@ -111,8 +111,8 @@ application, just for conciseness.)
 
 A 401 response will already be coming from Spring Security if the user
 cannot or does not want to login with Github, so the app is already
-working if you fail to authenticate with Github (e.g. by rejecting the
-token grant).
+working if you fail to authenticate (e.g. by rejecting the token
+grant).
 
 To spice things up a bit we will extend the authentication rule to
 reject users that are not in the right organization. It is easy to use
