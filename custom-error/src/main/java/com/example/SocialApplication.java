@@ -62,11 +62,9 @@ public class SocialApplication extends WebSecurityConfigurerAdapter {
 			String url = (String) map.get("organizations_url");
 			@SuppressWarnings("unchecked")
 			List<Map<String, Object>> orgs = template.getForObject(url, List.class);
-			for (Map<String, Object> org : orgs) {
-				if ("spring-projects".equals(org.get("login"))) {
-					return AuthorityUtils
-							.commaSeparatedStringToAuthorityList("ROLE_USER");
-				}
+			if (orgs.stream()
+					.anyMatch(org -> "spring-projects".equals(org.get("login")))) {
+				return AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_USER");
 			}
 			throw new BadCredentialsException("Not in Spring Team");
 		};
