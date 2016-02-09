@@ -4,11 +4,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.example</groupId>
-	<artifactId>social-logout</artifactId>
+	<artifactId>custom-error</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>social-logout</name>
+	<name>custom-error</name>
 	<description>Demo project for Spring Boot</description>
 
 	<parent>
