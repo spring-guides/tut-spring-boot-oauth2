@@ -134,24 +134,33 @@ public class SocialApplication extends WebSecurityConfigurerAdapter {
 		return new ClientResources();
 	}
 
+	@Bean
+	@ConfigurationProperties("google")
+	ClientResources google() {
+		return new ClientResources();
+	}
+
 	private Filter ssoFilter() {
 		CompositeFilter filter = new CompositeFilter();
 		List<Filter> filters = new ArrayList<>();
 		filters.add(ssoFilter(facebook(), "/login/facebook"));
 		filters.add(ssoFilter(github(), "/login/github"));
+		filters.add(ssoFilter(google(), "/login/google"));
 		filter.setFilters(filters);
 		return filter;
 	}
 
 	private Filter ssoFilter(ClientResources client, String path) {
-		OAuth2ClientAuthenticationProcessingFilter facebookFilter = new OAuth2ClientAuthenticationProcessingFilter(
+		OAuth2ClientAuthenticationProcessingFilter oAuth2Filter = new OAuth2ClientAuthenticationProcessingFilter(
 				path);
-		OAuth2RestTemplate facebookTemplate = new OAuth2RestTemplate(client.getClient(),
+		OAuth2RestTemplate oAuth2RestTemplate = new OAuth2RestTemplate(client.getClient(),
 				oauth2ClientContext);
-		facebookFilter.setRestTemplate(facebookTemplate);
-		facebookFilter.setTokenServices(new UserInfoTokenServices(
-				client.getResource().getUserInfoUri(), client.getClient().getClientId()));
-		return facebookFilter;
+		oAuth2Filter.setRestTemplate(oAuth2RestTemplate);
+		UserInfoTokenServices userInfoTokenServices = new UserInfoTokenServices(
+				client.getResource().getUserInfoUri(), client.getClient().getClientId());
+		userInfoTokenServices.setRestTemplate(oAuth2RestTemplate);
+		oAuth2Filter.setTokenServices(userInfoTokenServices);
+		return oAuth2Filter;
 	}
 
 	private Filter csrfHeaderFilter() {

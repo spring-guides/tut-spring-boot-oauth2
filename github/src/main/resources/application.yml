@@ -27,6 +27,19 @@ github:
   resource:
     userInfoUri: https://api.github.com/user
 
+google:
+  client:
+    clientId: 1071160065194-3556m2cmnlacgqo9qfjb2089f0aetb31.apps.googleusercontent.com
+    clientSecret: Hmw1APyVk7tLVcTTONh3pOhm
+    accessTokenUri: https://www.googleapis.com/oauth2/v3/token
+    userAuthorizationUri: https://accounts.google.com/o/oauth2/auth
+    authenticationScheme: query
+    scope:
+      - email
+      - profile
+  resource:
+    userInfoUri: https://www.googleapis.com/oauth2/v2/userinfo
+
 logging:
   level:
     org.springframework.security: DEBUG
