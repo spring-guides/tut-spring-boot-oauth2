@@ -20,6 +20,10 @@ choose on the home page which one to use.
 Authorization Server, able to issue its own tokens, but still using
 the external OAuth2 providers for authentication.
 
+* <<_social_login_custom_error,**custom-error**>>: adds an error message
+for unauthenticated users, and a custom authentication based on Github 
+API.
+
 NOTE: The changes needed to migrate from one app to the next one in
 the feature ladder can be tracked in the source (the source code is
 https://github.com/spring-guides/tut-spring-boot-oauth2[in
