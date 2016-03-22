@@ -1,10 +1,10 @@
 security:
   oauth2:
     client:
-      clientId: <clientId>
-      clientSecret: <secret>
-      accessTokenUri: <accesstokenuri>
-      userAuthorizationUri: <userAuthorizationUri>
+      clientId: [clientid]
+      clientSecret: [clientsecret]
+      accessTokenUri: https://login.microsoftonline.com/[tenant-id]/oauth2/token
+      userAuthorizationUri: https://login.microsoftonline.com/[tenant-id]/oauth2/authorize
       clientAuthenticationScheme: form
       scope: openid
     resource:
