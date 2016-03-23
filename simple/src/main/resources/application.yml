@@ -1,3 +1,6 @@
+aad:
+  resource: https://graph.windows.net
+
 security:
   oauth2:
     client:
