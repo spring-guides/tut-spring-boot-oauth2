@@ -215,6 +215,7 @@ configuration file which we provide as follows:
 ----
 server:
   port: 9999
+  context-path: /client
 security:
   oauth2:
     client:
@@ -230,6 +231,17 @@ The configuration looks a lot like the values we used in the main app,
 but with the "acme" client instead of the Facebook or Github ones. The
 app will run on port 9999 to avoid conflicts with the main app. And it
 refers to a user info endpoint "/me" which we haven't implemented yet.
+
+Note that the `server.context-path` is set explicitly, so if you run
+the app to test it remember the home page is
+http://localhost:9999/client.  Clicking on that link should take you
+to the auth server and once you you have authenticated with the social
+provider of your choice you will be redirected back to the client
+app
+
+NOTE: The context path has to be explicit if you are running both the
+client and the auth server on localhost, otherwise the cookie paths
+clash and the two apps cannot agree on a session identifier.
 
 == Protecting the User Info Endpoint
 
