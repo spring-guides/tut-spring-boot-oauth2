@@ -26,7 +26,7 @@ with the lower level annotation:
 [source,java]
 ----
 @SpringBootApplication
-@EnableOAuthClient
+@EnableOAuth2Client
 @RestController
 public class SocialApplication extends WebSecurityConfigurerAdapter {
   ...
@@ -42,7 +42,7 @@ configuration:
 [source,java]
 ----
 @SpringBootApplication
-@EnableOAuthClient
+@EnableOAuth2Client
 @RestController
 public class SocialApplication extends WebSecurityConfigurerAdapter {
 
@@ -128,7 +128,7 @@ facebook:
 The last change we need to make is to explicitly support the redirects
 from our app to Facebook. This is handled in Spring OAuth2 with a
 servlet `Filter`, and the filter is already available in the
-application context because we used `@EnableOAuthClient`. ALl that is
+application context because we used `@EnableOAuth2Client`. ALl that is
 needed is to wire the filter up so that it gets called in the right
 order in our Spring Boot application. To do that we need a
 `FilterRegistrationBean`:
