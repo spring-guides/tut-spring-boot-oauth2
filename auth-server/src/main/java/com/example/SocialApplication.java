@@ -126,13 +126,13 @@ public class SocialApplication extends WebSecurityConfigurerAdapter {
 	}
 
 	private Filter ssoFilter(ClientResources client, String path) {
-		OAuth2ClientAuthenticationProcessingFilter facebookFilter = new OAuth2ClientAuthenticationProcessingFilter(
+		OAuth2ClientAuthenticationProcessingFilter filter = new OAuth2ClientAuthenticationProcessingFilter(
 				path);
-		OAuth2RestTemplate facebookTemplate = new OAuth2RestTemplate(client.getClient(), oauth2ClientContext);
-		facebookFilter.setRestTemplate(facebookTemplate);
-		facebookFilter.setTokenServices(
-				new UserInfoTokenServices(client.getResource().getUserInfoUri(), client.getClient().getClientId()));
-		return facebookFilter;
+		OAuth2RestTemplate template = new OAuth2RestTemplate(client.getClient(), oauth2ClientContext);
+		filter.setRestTemplate(template);
+		filter.setTokenServices(new UserInfoTokenServices(
+				client.getResource().getUserInfoUri(), client.getClient().getClientId()));
+		return filter;
 	}
 
 }
