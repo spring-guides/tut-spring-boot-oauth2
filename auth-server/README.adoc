@@ -141,6 +141,30 @@ add an explicit approval step to the token grant we would need to
 provide a UI replacing the whitelabel version (at
 `/oauth/confirm_access`).
 
+To finish the Authorization Server we just need to provide security 
+configuration for its UI. In fact there isn't much of a user 
+interface in this simple app, but we still need to protect the
+`/oauth/authorize` endpoint, and make sure that the home page
+with the "Login" buttons is visible. That's why we have this
+method:
+
+```java
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+  http.antMatcher("/**")                                       // <1>
+    .authorizeRequests()
+      .antMatchers("/", "/login**", "/webjars/**").permitAll() // <2>
+      .anyRequest().authenticated()                            // <3>
+    .and().exceptionHandling()
+      .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/")) // <4>
+    ...
+}
+```
+<1> All requests are protected by default
+<2> The home page and login endpoints are explicitly excluded
+<3> All other endpoints require an authenticated user
+<4> Unauthenticated users are re-directed to the home page
+
 == How to Get an Access Token
 
 Access tokens are now available from our new Authorization Server.
@@ -192,15 +216,15 @@ application is easy to create with Spring Boot. Here's an example:
 @RestController
 public class ClientApplication {
 
-	@RequestMapping("/")
-	public String home(Principal user) {
-		return "Hello " + user.getName();
-	}
+  @RequestMapping("/")
+  public String home(Principal user) {
+    return "Hello " + user.getName();
+  }
 
-	public static void main(String[] args) {
-		new SpringApplicationBuilder(ClientApplication.class)
-				.properties("spring.config.name=client").run(args);
-	}
+  public static void main(String[] args) {
+    new SpringApplicationBuilder(ClientApplication.class)
+        .properties("spring.config.name=client").run(args);
+  }
 
 }
 ----
