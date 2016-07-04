@@ -123,6 +123,21 @@ facebook:
     userInfoUri: https://graph.facebook.com/me      
 ----
 
+Finally, we changed the path to the login to be facebook-specific in the 
+`Filter` declaration above, so we need to make the same change in the
+HTML:
+
+.index.html
+[source,html]
+----
+<h1>Login</h1>
+<div class="container" ng-show="!home.authenticated">
+	<div>
+	With Facebook: <a href="/login/facebook">click here</a>
+	</div>
+</div>
+----
+
 == Handling the Redirects
 
 The last change we need to make is to explicitly support the redirects
