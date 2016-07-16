@@ -1,17 +1,22 @@
+aad:
+  resource: https://graph.windows.net
+
 security:
   oauth2:
     client:
-      clientId: 233668646673605
-      clientSecret: 33b17e044ee6a4fa383f46ec6e28ea1d
-      accessTokenUri: https://graph.facebook.com/oauth/access_token
-      userAuthorizationUri: https://www.facebook.com/dialog/oauth
-      tokenName: oauth_token
-      authenticationScheme: query
+      clientId: [clientid]
+      clientSecret: [clientsecret]
+      accessTokenUri: https://login.microsoftonline.com/[tenant-id]/oauth2/token
+      userAuthorizationUri: https://login.microsoftonline.com/[tenant-id]/oauth2/authorize
       clientAuthenticationScheme: form
+      scope: openid
     resource:
-      userInfoUri: https://graph.facebook.com/me
+      userInfoUri: https://graph.windows.net/me?api-version=1.6
 spring:
   resources:
     chain:
       enabled: true
-      
+
+logging:
+  level:
+    org.springframework.security: DEBUG
