@@ -13,7 +13,7 @@ login.
 * <<_social_login_manual,**manual**>>: shows how the `@EnableOAuth2Sso` works by unpicking it
 and configuring all its pieces manually.
 
-* <<_social_login_github,**gitub**>>: adds a second login provider in Github, so the user can
+* <<_social_login_github,**github**>>: adds a second login provider in Github, so the user can
 choose on the home page which one to use.
 
 * <<_social_login_authserver,**auth-server**>>: turns the app into a fully-fledged OAuth2
