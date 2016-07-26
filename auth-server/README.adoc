@@ -195,12 +195,13 @@ where "..." should be replaced with the actual password. This is
 called a "password" grant, where you exchange a username and password
 for an access token. 
 
-Password grant is appropriate for a native or mobile application, and
-where you have a local user database to store and validate the
-credentials. For a web app, or any app with "social" login, like ours,
-you need the "authorization code" grant, and that means you need a
-browser to handle redirects and render the user interfaces from the
-external providers.
+Password grant is also mainly useful for testing, but can be
+appropriate for a native or mobile application, when you have a local
+user database to store and validate the credentials. For most apps, or
+any app with "social" login, like ours, you need the "authorization
+code" grant, and that means you need a browser (or a client that
+behaves like a browser) to handle redirects and cookies, and render
+the user interfaces from the external providers.
 
 == Creating a Client Application
 
