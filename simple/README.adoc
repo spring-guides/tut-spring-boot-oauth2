@@ -89,7 +89,7 @@ now), plus AngularJS for later. The other dependency is the webjars
 "locator" which is provided as a library by the webjars site, and
 which can be used by Spring to locate static assets in webjars without
 needing to know the exact versions (hence the versionless
-`/webjar/all}` links in the `index.html`). To activate the webjar
+`/webjars/{all}` links in the `index.html`). To activate the webjar
 locator we just need to activate the Spring MVC resource chain in our
 `application.properties`:
 
