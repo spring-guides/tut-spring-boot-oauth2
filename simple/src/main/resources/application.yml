@@ -10,8 +10,3 @@ security:
       clientAuthenticationScheme: form
     resource:
       userInfoUri: https://graph.facebook.com/me
-spring:
-  resources:
-    chain:
-      enabled: true
-      

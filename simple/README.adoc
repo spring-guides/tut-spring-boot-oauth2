@@ -89,15 +89,9 @@ now), plus AngularJS for later. The other dependency is the webjars
 "locator" which is provided as a library by the webjars site, and
 which can be used by Spring to locate static assets in webjars without
 needing to know the exact versions (hence the versionless
-`/webjars/{all}` links in the `index.html`). To activate the webjar
-locator we just need to activate the Spring MVC resource chain in our
-`application.properties`:
-
-.application.properties
-[source,properties]
-----
-spring.resources.chain.enabled: true
-----
+`/webjars/{all}` links in the `index.html`). The webjar
+locator is activated by default in a Spring Boot app as long as you 
+don't switch off the MVC autoconfiguration.
 
 With those changes in place we should have a nice looking home page
 for our app.

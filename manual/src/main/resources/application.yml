@@ -13,9 +13,3 @@ facebook:
 logging:
   level:
     org.springframework.security: DEBUG
-
-spring:
-  resources:
-    chain:
-      enabled: true
-      
