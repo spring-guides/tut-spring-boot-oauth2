@@ -15,7 +15,6 @@
  */
 package com.example;
 
-import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -23,11 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -53,15 +47,10 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.security.web.csrf.CsrfFilter;
-import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.security.web.csrf.CsrfTokenRepository;
-import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.filter.CompositeFilter;
-import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.util.WebUtils;
 
 @SpringBootApplication
 @RestController
@@ -82,29 +71,23 @@ public class SocialApplication extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		// @formatter:off	
-		http.antMatcher("/**")
-			.authorizeRequests()
-				.antMatchers("/", "/login**", "/webjars/**").permitAll()
-				.anyRequest().authenticated()
-			.and().exceptionHandling().authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/"))
-			.and().logout().logoutSuccessUrl("/").permitAll()
-			.and().csrf().csrfTokenRepository(csrfTokenRepository())
-			.and().addFilterAfter(csrfHeaderFilter(), CsrfFilter.class)
-			.addFilterBefore(ssoFilter(), BasicAuthenticationFilter.class);
+		// @formatter:off
+		http.antMatcher("/**").authorizeRequests().antMatchers("/", "/login**", "/webjars/**").permitAll().anyRequest()
+				.authenticated().and().exceptionHandling()
+				.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/")).and().logout()
+				.logoutSuccessUrl("/").permitAll().and().csrf()
+				.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).and()
+				.addFilterBefore(ssoFilter(), BasicAuthenticationFilter.class);
 		// @formatter:on
 	}
 
 	@Configuration
 	@EnableResourceServer
-	protected static class ResourceServerConfiguration
-			extends ResourceServerConfigurerAdapter {
+	protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 		@Override
 		public void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
-			http
-				.antMatcher("/me")
-				.authorizeRequests().anyRequest().authenticated();
+			http.antMatcher("/me").authorizeRequests().anyRequest().authenticated();
 			// @formatter:on
 		}
 	}
@@ -114,8 +97,7 @@ public class SocialApplication extends WebSecurityConfigurerAdapter {
 	}
 
 	@Bean
-	public FilterRegistrationBean oauth2ClientFilterRegistration(
-			OAuth2ClientContextFilter filter) {
+	public FilterRegistrationBean oauth2ClientFilterRegistration(OAuth2ClientContextFilter filter) {
 		FilterRegistrationBean registration = new FilterRegistrationBean();
 		registration.setFilter(filter);
 		registration.setOrder(-100);
@@ -146,41 +128,11 @@ public class SocialApplication extends WebSecurityConfigurerAdapter {
 	private Filter ssoFilter(ClientResources client, String path) {
 		OAuth2ClientAuthenticationProcessingFilter facebookFilter = new OAuth2ClientAuthenticationProcessingFilter(
 				path);
-		OAuth2RestTemplate facebookTemplate = new OAuth2RestTemplate(client.getClient(),
-				oauth2ClientContext);
+		OAuth2RestTemplate facebookTemplate = new OAuth2RestTemplate(client.getClient(), oauth2ClientContext);
 		facebookFilter.setRestTemplate(facebookTemplate);
-		facebookFilter.setTokenServices(new UserInfoTokenServices(
-				client.getResource().getUserInfoUri(), client.getClient().getClientId()));
+		facebookFilter.setTokenServices(
+				new UserInfoTokenServices(client.getResource().getUserInfoUri(), client.getClient().getClientId()));
 		return facebookFilter;
-	}
-
-	private Filter csrfHeaderFilter() {
-		return new OncePerRequestFilter() {
-			@Override
-			protected void doFilterInternal(HttpServletRequest request,
-					HttpServletResponse response, FilterChain filterChain)
-							throws ServletException, IOException {
-				CsrfToken csrf = (CsrfToken) request
-						.getAttribute(CsrfToken.class.getName());
-				if (csrf != null) {
-					Cookie cookie = WebUtils.getCookie(request, "XSRF-TOKEN");
-					String token = csrf.getToken();
-					if (cookie == null
-							|| token != null && !token.equals(cookie.getValue())) {
-						cookie = new Cookie("XSRF-TOKEN", token);
-						cookie.setPath("/");
-						response.addCookie(cookie);
-					}
-				}
-				filterChain.doFilter(request, response);
-			}
-		};
-	}
-
-	private CsrfTokenRepository csrfTokenRepository() {
-		HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
-		repository.setHeaderName("X-XSRF-TOKEN");
-		return repository;
 	}
 
 }

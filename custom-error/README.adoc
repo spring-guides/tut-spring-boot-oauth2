@@ -153,6 +153,18 @@ authenticate successfully and you are not in the Spring Engineering
 team. If there is no match, we throw `BadCredentialsException` and
 this is picked up by Spring Security and turned in to a 401 response.
 
+The `OAuth2RestOperations` has to be created as a bean as well (as of
+Spring Boot 1.4), but that's trivial because its ingredients are all
+autowirable by virtue of having used `@EnableOAuth2Sso`:
+
+[source,java,indent=0]
+----
+@Bean
+public OAuth2RestTemplate oauth2RestTemplate(OAuth2ProtectedResourceDetails resource, OAuth2ClientContext context) {
+	return new OAuth2RestTemplate(resource, context);
+}
+----
+
 TIP: Obviously the code above can be generalized to other
 authentication rules, some applicable to Github and some to other
 OAuth2 providers. All you need is the `OAuth2RestOperations` and some
