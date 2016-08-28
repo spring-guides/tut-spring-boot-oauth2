@@ -91,13 +91,13 @@ public class SocialApplication extends WebSecurityConfigurerAdapter {
 
 	@Bean
 	@ConfigurationProperties("facebook.client")
-	OAuth2ProtectedResourceDetails facebook() {
+	public OAuth2ProtectedResourceDetails facebook() {
 		return new AuthorizationCodeResourceDetails();
 	}
 
 	@Bean
 	@ConfigurationProperties("facebook.resource")
-	ResourceServerProperties facebookResource() {
+	public ResourceServerProperties facebookResource() {
 		return new ResourceServerProperties();
 	}
 

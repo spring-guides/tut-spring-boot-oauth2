@@ -106,13 +106,13 @@ public class SocialApplication extends WebSecurityConfigurerAdapter {
 
 	@Bean
 	@ConfigurationProperties("github")
-	ClientResources github() {
+	public ClientResources github() {
 		return new ClientResources();
 	}
 
 	@Bean
 	@ConfigurationProperties("facebook")
-	ClientResources facebook() {
+	public ClientResources facebook() {
 		return new ClientResources();
 	}
 
