@@ -72,13 +72,13 @@ before, but a single method for each provider:
 ----
 @Bean
 @ConfigurationProperties("github")
-ClientResources github() {
+public ClientResources github() {
   return new ClientResources();
 }
 
 @Bean
 @ConfigurationProperties("facebook")
-ClientResources facebook() {
+public ClientResources facebook() {
   return new ClientResources();
 }
 ----

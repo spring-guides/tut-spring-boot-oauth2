@@ -72,13 +72,13 @@ supplemented with similar methods `github()` and `githubResource()`:
 ----
 @Bean
 @ConfigurationProperties("github.client")
-OAuth2ProtectedResourceDetails github() {
+public OAuth2ProtectedResourceDetails github() {
 	return new AuthorizationCodeResourceDetails();
 }
 
 @Bean
 @ConfigurationProperties("github.resource")
-ResourceServerProperties githubResource() {
+public ResourceServerProperties githubResource() {
 	return new ResourceServerProperties();
 }
 ----
