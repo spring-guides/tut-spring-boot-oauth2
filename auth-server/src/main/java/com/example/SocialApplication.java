@@ -29,6 +29,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.ResourceServerProperties;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.UserInfoTokenServices;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -138,10 +139,14 @@ public class SocialApplication extends WebSecurityConfigurerAdapter {
 }
 
 class ClientResources {
-	private OAuth2ProtectedResourceDetails client = new AuthorizationCodeResourceDetails();
+
+	@NestedConfigurationProperty
+	private AuthorizationCodeResourceDetails client = new AuthorizationCodeResourceDetails();
+
+	@NestedConfigurationProperty
 	private ResourceServerProperties resource = new ResourceServerProperties();
 
-	public OAuth2ProtectedResourceDetails getClient() {
+	public AuthorizationCodeResourceDetails getClient() {
 		return client;
 	}
 

@@ -91,7 +91,7 @@ public class SocialApplication extends WebSecurityConfigurerAdapter {
 
 	@Bean
 	@ConfigurationProperties("facebook.client")
-	public OAuth2ProtectedResourceDetails facebook() {
+	public AuthorizationCodeResourceDetails facebook() {
 		return new AuthorizationCodeResourceDetails();
 	}
 
