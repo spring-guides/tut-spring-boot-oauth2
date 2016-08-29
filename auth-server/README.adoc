@@ -51,10 +51,13 @@ the `OAuth2ProtectedResourceDetails` and the
 ----
 class ClientResources {
 
-  private OAuth2ProtectedResourceDetails client = new AuthorizationCodeResourceDetails();
+  @NestedConfigurationProperty
+  private AuthorizationCodeResourceDetails client = new AuthorizationCodeResourceDetails();
+
+  @NestedConfigurationProperty
   private ResourceServerProperties resource = new ResourceServerProperties();
 
-  public OAuth2ProtectedResourceDetails getClient() {
+  public AuthorizationCodeResourceDetails getClient() {
     return client;
   }
 
@@ -63,6 +66,10 @@ class ClientResources {
   }
 }
 ----
+
+NOTE: the wrapper uses `@NestedConfigurationProperty` to instructs the annotation
+processor to crawl that type for meta-data as well since it does not represents
+a single value but a complete nested type.
 
 With this wrapper in place we can use the same YAML configuration as
 before, but a single method for each provider:

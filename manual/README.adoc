@@ -83,7 +83,7 @@ the filter also needs to know about the client registration with Facebook:
 
   @Bean
   @ConfigurationProperties("facebook.client")
-  public OAuth2ProtectedResourceDetails facebook() {
+  public AuthorizationCodeResourceDetails facebook() {
     return new AuthorizationCodeResourceDetails();
   }
 ----
