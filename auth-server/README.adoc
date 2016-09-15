@@ -344,16 +344,10 @@ The `@EnableResourceServer` annotation creates a security filter with
 == Testing the OAuth2 Client
 
 To test the new features you can just run both apps and visit
-127.0.0.1:9999 in your browser. The client app will redirect to the
-local Authorization Server, which then gives the user the usual choice
-of authentication with Facebook or Github. Once that is complete
-control returns to the test client, the local access token is granted
-and authentication is complete (you should see a "Hello" message in
-your browser). If you are already authenticated with Github or
-Facebook you may not even notice the remote authentication.
-
-TIP: Don't use "localhost" for the test client app or it will steal
-cookies from the main app and mess up the authentication. If 127.0.0.1
-is not mapped to "localhost" you can set it up using your operating
-system (e.g. in "/etc/hosts"), or use another local address if there
-is one.
+http://localhost:9999/client in your browser. The client app will
+redirect to the local Authorization Server, which then gives the user
+the usual choice of authentication with Facebook or Github. Once that
+is complete control returns to the test client, the local access token
+is granted and authentication is complete (you should see a "Hello"
+message in your browser). If you are already authenticated with Github
+or Facebook you may not even notice the remote authentication.
