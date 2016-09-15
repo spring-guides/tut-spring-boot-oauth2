@@ -34,8 +34,10 @@ JavaScript:
 ----
 angular
   .module("app", [])
+  ...
   .controller("home", function($http, $location) {
     var self = this;
+    ...
     self.logout = function() {
       $http.post('/logout', {}).success(function() {
         self.authenticated = false;
