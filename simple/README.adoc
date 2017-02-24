@@ -201,7 +201,7 @@ servlet-based) applications.
 
 So we have a secure application, in the sense that to see any content
 a user has to authenticate with an external provider (Facebook). We
-wouldn't want to use that for an internet backing website, but for
+wouldn't want to use that for an internet banking website, but for
 basic identification purposes, and to segregate content between
 different users of your site, it's an excellent starting point, which
 explains why this kind of authentication is very popular these
