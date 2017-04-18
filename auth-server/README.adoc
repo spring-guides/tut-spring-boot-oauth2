@@ -237,6 +237,11 @@ public class ClientApplication {
 }
 ----
 
+NOTE: The `ClientApplication` class MUST NOT be created in the same
+package (or a sub-package) of the `SocialApplication` class. Otherwise,
+Spring will load some `ClientApplication` auto-configurations while
+starting the `SocialApplication` server, resulting in startup errors.
+
 The ingredients of the client are a home page (just prints the user's
 name), and an explicit name for a configuration file (via
 `spring.config.name=client`). When we run this app it will look for a
