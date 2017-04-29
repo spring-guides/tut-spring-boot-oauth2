@@ -93,7 +93,7 @@ public class SocialApplication {
 ----
 
 Note the use of `@RestController` and `@RequestMapping` and the
-`java.util.Principal` we inject into the handler method.
+`java.security.Principal` we inject into the handler method.
 
 WARNING: It's not a great idea to return a whole `Principal` in a
 `/user` endpoint like that (it might contain information you would
