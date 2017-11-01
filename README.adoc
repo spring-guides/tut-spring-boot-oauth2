@@ -1,5 +1,5 @@
 ---
-tags: [security,angular,rest,oauth]
+tags: [security,javascript,rest,oauth]
 projects: [spring-security,spring-security-oauth,spring-boot]
 ---
 :toc: left

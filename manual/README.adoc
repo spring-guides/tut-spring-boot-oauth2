@@ -133,7 +133,7 @@ HTML:
 [source,html]
 ----
 <h1>Login</h1>
-<div class="container" ng-show="!home.authenticated">
+<div class="container unauthenticated">
 	<div>
 	With Facebook: <a href="/login/facebook">click here</a>
 	</div>
