@@ -8,58 +8,55 @@
 <meta name="viewport" content="width=device-width" />
 <base href="/" />
 <link rel="stylesheet" type="text/css"
-	href="/webjars/bootstrap/css/bootstrap.min.css" />
+    href="/webjars/bootstrap/css/bootstrap.min.css" />
 <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
 <script type="text/javascript"
-	src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+    src="/webjars/bootstrap/js/bootstrap.min.js"></script>
 </head>
-<body ng-app="app" ng-controller="home as home">
-	<h1>Login</h1>
-	<div class="container" ng-show="!home.authenticated">
-		<div>
-			With Facebook: <a href="/login/facebook">click here</a>
-		</div>
-		<div>
-			With Github: <a href="/login/github">click here</a>
-		</div>
-	</div>
-	<div class="container" ng-show="home.authenticated">
-		Logged in as: <span ng-bind="home.user"></span>
-		<div>
-			<button ng-click="home.logout()" class="btn btn-primary">Logout</button>
-		</div>
-	</div>
-	<script type="text/javascript" src="/webjars/angularjs/angular.min.js"></script>
-	<script type="text/javascript">
-		angular
-				.module("app", [])
-				.config(
-						function($httpProvider) {
-							$httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-						}).controller("home", function($http, $location) {
-					var self = this;
-					$http.get("/user").success(function(data) {
-						if (data.name) {
-							self.user = data.name;
-							self.authenticated = true;
-						} else {
-							self.user = "N/A";
-							self.authenticated = false;
-						}
-					}).error(function() {
-						self.user = "N/A";
-						self.authenticated = false;
-					});
-					self.logout = function() {
-						$http.post('logout', {}).success(function() {
-							self.authenticated = false;
-							$location.path("/");
-						}).error(function(data) {
-							console.log("Logout failed")
-							self.authenticated = false;
-						});
-					};
-				});
-	</script>
+<body>
+    <h1>Login</h1>
+    <div class="container unauthenticated">
+        <div>
+            With Facebook: <a href="/login/facebook">click here</a>
+        </div>
+        <div>
+            With Github: <a href="/login/github">click here</a>
+        </div>
+    </div>
+    <div class="container authenticated" style="display: none">
+        Logged in as: <span id="user"></span>
+        <div>
+            <button onClick="logout()" class="btn btn-primary">Logout</button>
+        </div>
+    </div>
+    <script type="text/javascript" src="/webjars/js-cookie/js.cookie.js"></script>
+    <script type="text/javascript">
+          $.ajaxSetup({
+            beforeSend : function(xhr, settings) {
+              if (settings.type == 'POST' || settings.type == 'PUT'
+                  || settings.type == 'DELETE') {
+                if (!(/^http:.*/.test(settings.url) || /^https:.*/
+                    .test(settings.url))) {
+                  // Only send the token to relative URLs i.e. locally.
+                  xhr.setRequestHeader("X-XSRF-TOKEN", Cookies
+                      .get('XSRF-TOKEN'));
+                }
+              }
+            }
+          });
+          $.get("/user", function(data) {
+            $("#user").html(data.userAuthentication.details.name);
+            $(".unauthenticated").hide();
+            $(".authenticated").show();
+          });
+          var logout = function() {
+            $.post("/logout", function() {
+              $("#user").html('');
+              $(".unauthenticated").show();
+              $(".authenticated").hide();
+            })
+            return true;
+          }
+        </script>
 </body>
 </html>
