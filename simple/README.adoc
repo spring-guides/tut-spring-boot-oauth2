@@ -65,11 +65,6 @@ we can do that by adding some dependencies:
 ----
 <dependency>
 	<groupId>org.webjars</groupId>
-	<artifactId>angularjs</artifactId>
-	<version>1.4.3</version>
-</dependency>
-<dependency>
-	<groupId>org.webjars</groupId>
 	<artifactId>jquery</artifactId>
 	<version>2.1.1</version>
 </dependency>
@@ -85,7 +80,7 @@ we can do that by adding some dependencies:
 ----
 
 We added Twitter bootstrap and jQuery (which is all we need right
-now), plus AngularJS for later. The other dependency is the webjars
+now). The other dependency is the webjars
 "locator" which is provided as a library by the webjars site, and
 which can be used by Spring to locate static assets in webjars without
 needing to know the exact versions (hence the versionless

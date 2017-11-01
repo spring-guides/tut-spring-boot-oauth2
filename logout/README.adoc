@@ -19,10 +19,10 @@ the button:
 
 .index.html
 ----
-<div class="container" ng-show="home.authenticated">
-  Logged in as: <span ng-bind="home.user"></span>
+<div class="container authenticated">
+  Logged in as: <span id="user"></span>
   <div>
-    <button ng-click="home.logout()" class="btn btn-primary">Logout</button>
+    <button onClick="logout()" class="btn btn-primary">Logout</button>
   </div>
 </div>
 ----

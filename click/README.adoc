@@ -18,51 +18,33 @@ https://angularjs.org/[AngularJS], but if you prefer to use a
 different framework, it shouldn't be very hard to translate the client
 code.
 
-To get started with AngularJS we need to mark the HTML `<body>` as a
-Angular app container:
+To get started with the dynamic content we need to mark up the HTML in parts of it are going to display it:
 
 .index.html
 [source,html]
 ----
-<body ng-app="app" ng-controller="home as home">
-...
-</body>
-----
-
-and the `<div>` elements in the body can be bound to a model that
-controls which parts of it are displayed:
-
-.index.html
-[source,html]
-----
-<div class="container" ng-show="!home.authenticated">
-	Login with: <a href="/login">Facebook</a>
+<div class="container unauthenticated">
+    With Facebook: <a href="/login">click here</a>
 </div>
-<div class="container" ng-show="home.authenticated">
-	Logged in as: <span ng-bind="home.user"></span>
+<div class="container authenticated" style="display:none">
+    Logged in as: <span id="user"></span>
 </div>
 ----
 
-This HTML sets us up with a need for a "home" controller that has an
-`authenticated` flag, and a `user` object describing the authenticated
-user. Here's a simple implementation of those features (drop them in
+This HTML sets us up with a need for some client side code that manipulates the 
+`authenticated`, `unauthenticated` and `user` elements.
+Here's a simple implementation of those features (drop them in
 at the end of the `<body>`):
 
 .index.html
 [source,html]
 ----
-<script type="text/javascript" src="/webjars/angularjs/angular.min.js"></script>
 <script type="text/javascript">
-  angular.module("app", []).controller("home", function($http) {
-    var self = this;
-    $http.get("/user").success(function(data) {
-      self.user = data.userAuthentication.details.name;
-      self.authenticated = true;
-    }).error(function() {
-      self.user = "N/A";
-      self.authenticated = false;
+    $.get("/user", null, function(data) {
+        $("#user").html(data.userAuthentication.details.name);
+        $(".unauthenticated").hide()
+        $(".authenticated").show()
     });
-  });
 </script>
 ----
 

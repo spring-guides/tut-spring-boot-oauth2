@@ -10,7 +10,7 @@ In the client the change is trivial, we just add another link:
 .index.html
 [source,html]
 ----
-<div class="container" ng-show="!home.authenticated">
+<div class="container unauthenticated">
   <div>
     With Facebook: <a href="/login/facebook">click here</a>
   </div>
