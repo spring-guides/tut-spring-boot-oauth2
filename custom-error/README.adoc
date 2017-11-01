@@ -40,31 +40,35 @@ informative message:
 
 .index.html
 ----
-<div class="container text-danger" ng-show="home.error">
+<div class="container text-danger error" style="display:none">
 There was an error (bad credentials).
 </div>
 ----
 
-This text will only be shown when the "error" flag is set in the controller,
+This text will only be shown when the "error" element is shown,
 so we need some code to do that:
 
 .index.html
 ----
-angular
-  .module("app", [])
-  .controller("home", function($http, $location) {
-    var self = this;
-    self.logout = function() {
-      if ($location.absUrl().indexOf("error=true") >= 0) {
-        self.authenticated = false;
-        self.error = true;
-      }
-      ...
-    };
-  });
-----
+$.ajax({
+  url : "/user",
+  success : function(data) {
+    $(".unauthenticated").hide();
+    $("#user").html(data.userAuthentication.details.name);
+    $(".authenticated").show();
+  },
+  error : function(data) {
+    $("#user").html('');
+    $(".unauthenticated").show();
+    $(".authenticated").hide();
+    if (location.href.indexOf("error=true")>=0) {
+      $(".error").show();
+    }
+  }
+});
+ ----
 
-The "home" controller checks the browser location when it loads
+The authentication function checks the browser location when it loads
 and if it finds a URL with "error=true" in it, the flag is set.
 
 == Adding an Error Page
@@ -97,8 +101,7 @@ public class ServletCustomizer {
   @Bean
   public EmbeddedServletContainerCustomizer customizer() {
     return container -> {
-      container.addErrorPages(
-          new ErrorPage(HttpStatus.UNAUTHORIZED, "/unauthenticated"));
+      container.addErrorPages(new ErrorPage(HttpStatus.UNAUTHORIZED, "/unauthenticated"));
     };
   }
 }
