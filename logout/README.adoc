@@ -95,35 +95,34 @@ protected void configure(HttpSecurity http) throws Exception {
 == Adding the CSRF Token in the Client
 
 Since we are not using a higher level framework in this sample, we
-need to explicitly add the CSRF token, which is available as a cookie. The code is simple, if a bit long winded:
+need to explicitly add the CSRF token, which we made available as a
+cookie from the backend. To make the code a bit simpler, we include an
+additional library:
+
+.pom.xml
+[source,xml]
+----
+<dependency>
+    <groupId>org.webjars</groupId>
+    <artifactId>js-cookie</artifactId>
+    <version>2.1.0</version>
+</dependency>
+----
+
+then we can use `Cookies` convenience methods in xhr:
 
 .index.html
+[source,html]
 ----
 $.ajaxSetup({
 beforeSend : function(xhr, settings) {
   if (settings.type == 'POST' || settings.type == 'PUT'
       || settings.type == 'DELETE') {
-    function getCookie(name) {
-      var cookieValue = null;
-      if (document.cookie && document.cookie != '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-          var cookie = jQuery.trim(cookies[i]);
-          // Does this cookie string begin with the name we want?
-          if (cookie.substring(0, name.length + 1) == (name + '=')) {
-            cookieValue = decodeURIComponent(cookie
-                .substring(name.length + 1));
-            break;
-          }
-        }
-      }
-      return cookieValue;
-    }
     if (!(/^http:.*/.test(settings.url) || /^https:.*/
         .test(settings.url))) {
       // Only send the token to relative URLs i.e. locally.
       xhr.setRequestHeader("X-XSRF-TOKEN",
-          getCookie('XSRF-TOKEN'));
+          Cookies.get('XSRF-TOKEN'));
     }
   }
 }

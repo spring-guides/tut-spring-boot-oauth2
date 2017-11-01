@@ -20,7 +20,7 @@ self-hosted OAuth2 Authorization Server with a choice of
 authentication providers (https://developers.facebook.com[Facebook] or
 https://developer.github.com/[Github]). The samples are all
 single-page apps using Spring Boot and Spring OAuth on the back
-end. They also all use https://angularjs.org/[AngularJS] on the front
+end. They also all use plain https://jquery.org/[jQuery] on the front
 end, but the changes needed to convert to a different JavaScript
 framework or to use server side rendering would be minimal.
 
