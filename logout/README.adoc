@@ -32,26 +32,17 @@ JavaScript:
 
 .index.html
 ----
-angular
-  .module("app", [])
-  ...
-  .controller("home", function($http, $location) {
-    var self = this;
-    ...
-    self.logout = function() {
-      $http.post('/logout', {}).success(function() {
-        self.authenticated = false;
-        $location.path("/");
-      }).error(function(data) {
-        console.log("Logout failed")
-        self.authenticated = false;
-      });
-    };
-  });
+var logout = function() {
+    $.post("/logout", function() {
+        $("#user").html('');
+        $(".unauthenticated").show();
+        $(".authenticated").hide();
+    })
+    return true;
+}
 ----
 
-The `logout()` function does a POST to `/logout` and then clears the
-`authenticated` flag. Now we can switch over to the server side to
+The `logout()` function does a POST to `/logout` and then clears the dynamic content. Now we can switch over to the server side to
 implement that endpoint.
 
 == Adding a Logout Endpoint
@@ -78,14 +69,17 @@ requires a token to be included in the request. The value of the token
 is linked to the current session, which is what provides the
 protection, so we need a way to get that data into our JavaScript app.
 
-AngularJS also has built in support for CSRF (they call it XSRF), but
-it is implemented in a slightly different way than the out-of-the box
-behaviour of Spring Security. What Angular would like is for the
-server to send it a cookie called "XSRF-TOKEN" and if it sees that, it
-will send the value back as a header named "X-XSRF-TOKEN". To teach
-Spring Security about this we need to add a filter that creates the
-cookie and also we need to tell the existing CRSF filter about the
-header name. In the `WebSecurityConfigurer`:
+Many JavaScript frameworks have built in support for CSRF (e.g. in
+Angular they call it XSRF), but it is often implemented in a slightly
+different way than the out-of-the box behaviour of Spring
+Security. For instance in Angular the front end would like the server
+to send it a cookie called "XSRF-TOKEN" and if it sees that, it will
+send the value back as a header named "X-XSRF-TOKEN". We can implement
+the same behaviour with our simple jQuery client, and then the server
+side changes will work with other front end implementations with no or
+very few changes. To teach Spring Security about this we need to add a
+filter that creates the cookie and also we need to tell the existing
+CRSF filter about the header name. In the `WebSecurityConfigurer`:
 
 .SocialApplication.java
 [source,java]
@@ -96,6 +90,44 @@ protected void configure(HttpSecurity http) throws Exception {
     ... // existing code here
     .and().csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
 }
+----
+
+== Adding the CSRF Token in the Client
+
+Since we are not using a higher level framework in this sample, we
+need to explicitly add the CSRF token, which is available as a cookie. The code is simple, if a bit long winded:
+
+.index.html
+----
+$.ajaxSetup({
+beforeSend : function(xhr, settings) {
+  if (settings.type == 'POST' || settings.type == 'PUT'
+      || settings.type == 'DELETE') {
+    function getCookie(name) {
+      var cookieValue = null;
+      if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+          var cookie = jQuery.trim(cookies[i]);
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) == (name + '=')) {
+            cookieValue = decodeURIComponent(cookie
+                .substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    if (!(/^http:.*/.test(settings.url) || /^https:.*/
+        .test(settings.url))) {
+      // Only send the token to relative URLs i.e. locally.
+      xhr.setRequestHeader("X-XSRF-TOKEN",
+          getCookie('XSRF-TOKEN'));
+    }
+  }
+}
+});
 ----
 
 == Ready To Roll!

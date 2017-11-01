@@ -22,7 +22,7 @@
         Logged in as: <span id="user"></span>
     </div>
     <script type="text/javascript">
-          $.get("/user", null, function(data) {
+          $.get("/user", function(data) {
             $("#user").html(data.userAuthentication.details.name);
             $(".unauthenticated").hide()
             $(".authenticated").show()
