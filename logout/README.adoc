@@ -109,6 +109,14 @@ additional library:
 </dependency>
 ----
 
+Import it in HTML:
+
+.index.html
+[source,html]
+----
+<script type="text/javascript" src="/webjars/js-cookie/js.cookie.js"></script>
+----
+
 then we can use `Cookies` convenience methods in xhr:
 
 .index.html
