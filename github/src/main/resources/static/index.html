@@ -22,6 +22,9 @@
         <div>
             With Github: <a href="/login/github">click here</a>
         </div>
+        <div>
+            With GitLab: <a href="/login/gitlab">click here</a>
+        </div>
     </div>
     <div class="container authenticated" style="display: none">
         Logged in as: <span id="user"></span>
@@ -45,7 +48,7 @@
             }
           });
           $.get("/user", function(data) {
-            $("#user").html(data.userAuthentication.details.name);
+            $("#user").html(data.name);
             $(".unauthenticated").hide();
             $(".authenticated").show();
           });
