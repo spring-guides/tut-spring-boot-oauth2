@@ -125,7 +125,5 @@ public class ResourceOwnerPasswordCredentialsGrantTest {
       Assert.assertEquals(refreshToken, responseMap.get("refresh_token"));
       Assert.assertTrue((int) responseMap.get("expires_in") > 1000);
       Assert.assertEquals(scopes[0], responseMap.get("scope"));
-
-      // ----- TODO Check Access Token -----
    }
 }
