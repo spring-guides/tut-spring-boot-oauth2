@@ -5,6 +5,11 @@ security:
       client-secret: acmesecret
       scope: read,write
       auto-approve-scopes: '.*'
+    authorization:
+      check-token-access: isAuthenticated()
+  user:
+    name: acmeuser
+    password: acmeuserpassword
 
 facebook:
   client:

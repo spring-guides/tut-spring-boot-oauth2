@@ -130,6 +130,11 @@ security:
       client-secret: acmesecret
       scope: read,write
       auto-approve-scopes: '.*'
+    authorization:
+      check-token-access: isAuthenticated()
+  user:
+    name: acmeuser
+    password: acmeuserpassword
 ----
 
 This client is the equivalent of the `facebook.client{star}` and
@@ -148,8 +153,16 @@ add an explicit approval step to the token grant we would need to
 provide a UI replacing the whitelabel version (at
 `/oauth/confirm_access`).
 
-To finish the Authorization Server we just need to provide security 
-configuration for its UI. In fact there isn't much of a user 
+NOTE: We enable the check_token endpoint with the configuration
+"check-token-access: isAuthenticated()". We need this endpoint to
+validate the Access Tokens from an external application (or website).
+
+NOTE: If we don't provide user credentials Spring Boot creates new
+random credentials on every application start. Therefore we provide
+them and can use the OAuth 2 Resource Owner Password Credentials Grant.
+
+To finish the Authorization Server we just need to provide security
+configuration for its UI. In fact there isn't much of a user
 interface in this simple app, but we still need to protect the
 `/oauth/authorize` endpoint, and make sure that the home page
 with the "Login" buttons is visible. That's why we have this
@@ -200,7 +213,7 @@ $ curl acme:acmesecret@localhost:8080/oauth/token -d grant_type=password -d user
 
 where "..." should be replaced with the actual password. This is
 called a "password" grant, where you exchange a username and password
-for an access token. 
+for an access token.
 
 Password grant is also mainly useful for testing, but can be
 appropriate for a native or mobile application, when you have a local
@@ -360,3 +373,17 @@ is complete control returns to the test client, the local access token
 is granted and authentication is complete (you should see a "Hello"
 message in your browser). If you are already authenticated with Github
 or Facebook you may not even notice the remote authentication.
+
+== OAuth2 Authorization Server Features
+
+Client Credentials Grant is working.
+
+Resource Owner Password Credentials Grant is working.
+
+Refreshing an Access Token is working.
+
+Checking an Access Token is working.
+
+Authorization Code Grant is working.
+
+Log-in with Resource Owner Credentials is also NOT working.
