@@ -384,6 +384,6 @@ Refreshing an Access Token is working.
 
 Checking an Access Token is working.
 
-Authorization Code Grant is NOT working.
+Authorization Code Grant is working.
 
 Log-in with Resource Owner Credentials is also NOT working.
