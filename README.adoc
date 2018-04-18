@@ -24,6 +24,15 @@ end. They also all use plain https://jquery.org/[jQuery] on the front
 end, but the changes needed to convert to a different JavaScript
 framework or to use server side rendering would be minimal.
 
+Because one of the samples is a full OAuth2 Authorization Server we
+have used the
+https://docs.spring.io/spring-security-oauth2-boot/docs/current/reference/htmlsingle/[shim
+JAR] which supports bridging from Spring Boot 2.0 to the old Spring
+Security OAuth2 library. The simpler samples could also be implemented
+using the native OAuth2 support in
+https://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/htmlsingle/#boot-features-security-oauth2[Spring
+Boot] security features. The configuration is very similar.
+
 include::overview.adoc[]
 
 include::simple/README.adoc[leveloffset=+1]
