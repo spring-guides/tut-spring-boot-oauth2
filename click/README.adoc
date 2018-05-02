@@ -103,7 +103,7 @@ public class SocialApplication extends WebSecurityConfigurerAdapter {
     http
       .antMatcher("/**")
       .authorizeRequests()
-        .antMatchers("/", "/login**", "/webjars/**")
+        .antMatchers("/", "/login**", "/webjars/**", "/error**")
         .permitAll()
       .anyRequest()
         .authenticated();
@@ -120,6 +120,10 @@ visible is to explicitly `authorizeRequests()` to the home page and
 the static resources it contains (we also include access to the login
 endpoints which handle the authentication). All other requests
 (e.g. to the `/user` endpoint) require authentication.
+
+NOTE: `/error**` is an unprotected path because we want Spring Boot
+to bew able to render errors if there is a problem in the app, even
+if the user is unauthenticated.
 
 With that change in place the application is complete, and if you run
 it and visit the home page you should see a nicely styled HTML link to
