@@ -26,6 +26,15 @@ github:
     clientAuthenticationScheme: form
   resource:
     userInfoUri: https://api.github.com/user
+gitlab:
+  client:
+    clientId: a5859a62d9d1ddad4ccae188b4c42ca75c91662d0342d7fe576c3a86312b2c34
+    clientSecret: ea1aa168311f1996ae7ff03fe246e17ffa7df9974300624facdc96b25261099d
+    accessTokenUri: https://gitlab.com/oauth/token
+    userAuthorizationUri: https://gitlab.com/oauth/authorize
+    clientAuthenticationScheme: form
+  resource:
+    userInfoUri: https://gitlab.com/api/v4/user
 
 logging:
   level:

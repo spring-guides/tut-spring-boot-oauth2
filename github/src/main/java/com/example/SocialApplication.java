@@ -104,7 +104,13 @@ public class SocialApplication extends WebSecurityConfigurerAdapter {
 		return registration;
 	}
 
-	@Bean
+    @Bean
+    @ConfigurationProperties("gitlab")
+    public ClientResources gitlab() {
+        return new ClientResources();
+    }
+
+    @Bean
 	@ConfigurationProperties("github")
 	public ClientResources github() {
 		return new ClientResources();
@@ -121,6 +127,7 @@ public class SocialApplication extends WebSecurityConfigurerAdapter {
 		List<Filter> filters = new ArrayList<>();
 		filters.add(ssoFilter(facebook(), "/login/facebook"));
 		filters.add(ssoFilter(github(), "/login/github"));
+        filters.add(ssoFilter(gitlab(), "/login/gitlab"));
 		filter.setFilters(filters);
 		return filter;
 	}
