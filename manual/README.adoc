@@ -154,13 +154,12 @@ order in our Spring Boot application. To do that we need a
 [source,java]
 ----
 @Bean
-public FilterRegistrationBean<OAuth2ClientContextFilter> oauth2ClientFilterRegistration(
-    OAuth2ClientContextFilter filter) {
-  FilterRegistrationBean<OAuth2ClientContextFilter> registration = new FilterRegistrationBean()<OAuth2ClientContextFilter>;
-  registration.setFilter(filter);
-  registration.setOrder(-100);
-  return registration;
-}
+	public FilterRegistrationBean<OAuth2ClientContextFilter> oauth2ClientFilterRegistration(OAuth2ClientContextFilter filter) {
+		FilterRegistrationBean<OAuth2ClientContextFilter> registration = new FilterRegistrationBean<OAuth2ClientContextFilter>();
+		registration.setFilter(filter);
+		registration.setOrder(-100);
+		return registration;
+	}
 ----
 
 We autowire the already available filter, and register it with a
