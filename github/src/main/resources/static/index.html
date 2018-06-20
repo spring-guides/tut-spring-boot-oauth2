@@ -46,8 +46,12 @@
           });
           $.get("/user", function(data) {
             $("#user").html(data.name);
-            $(".unauthenticated").hide();
-            $(".authenticated").show();
+            if (data.name==undefined) {
+            	logout();
+            }else{
+            	$(".unauthenticated").hide();
+	            $(".authenticated").show();
+            }
           });
           var logout = function() {
             $.post("/logout", function() {
