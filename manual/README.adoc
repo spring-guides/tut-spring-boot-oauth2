@@ -165,7 +165,7 @@ order in our Spring Boot application. To do that we need a
 We autowire the already available filter, and register it with a
 sufficiently low order that it comes *before* the main Spring Security
 filter. In this way we can use it to handle redirects signaled by
-expceptions in authentication requests.
+exceptions in authentication requests.
 
 With these changes in place the app is good to go, and at runtime is
 equivalent to the <<_social_login_logout,logout>> sample we built in
