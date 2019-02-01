@@ -71,6 +71,20 @@
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
+
+          <!-- https://stackoverflow.com/questions/48986999 -->
+          <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
+          </dependency>
+          <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>                               
+            <version>2.3.2</version>
+          </dependency>
+          <!-- JAXB-API has not been found on module path or classpath -->
+
     </dependencies>
 
     <build>
