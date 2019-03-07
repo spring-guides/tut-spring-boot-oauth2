@@ -122,7 +122,7 @@ endpoints which handle the authentication). All other requests
 (e.g. to the `/user` endpoint) require authentication.
 
 NOTE: `/error**` is an unprotected path because we want Spring Boot
-to bew able to render errors if there is a problem in the app, even
+to be able to render errors if there is a problem in the app, even
 if the user is unauthenticated.
 
 With that change in place the application is complete, and if you run
