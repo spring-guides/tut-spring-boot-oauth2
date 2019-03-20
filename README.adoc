@@ -14,7 +14,7 @@ projects: [spring-security,spring-security-oauth,spring-boot]
 
 This guide shows you how to build a sample app doing various things
 with "social login" using https://tools.ietf.org/html/rfc6749[OAuth2]
-and http://projects.spring.io/spring-boot/[Spring Boot]. It starts
+and https://projects.spring.io/spring-boot/[Spring Boot]. It starts
 with a simple, single-provider single-sign on, and works up to a
 self-hosted OAuth2 Authorization Server with a choice of
 authentication providers (https://developers.facebook.com[Facebook] or

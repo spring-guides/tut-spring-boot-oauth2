@@ -39,7 +39,7 @@ that you have at least a Facebook account if you want to log in and
 see the content). You can also run all the apps on the command line
 using `mvn spring-boot:run` or by building the jar file and running it
 with `mvn package` and `java -jar target/*.jar` (per the
-http://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/htmlsingle/#getting-started-first-application-run[Spring
+https://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/htmlsingle/#getting-started-first-application-run[Spring
 Boot docs] and other
 https://spring.io/guides/gs/spring-boot/[available
 documentation]). There is no need to install Maven if you use the
