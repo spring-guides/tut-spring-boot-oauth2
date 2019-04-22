@@ -190,7 +190,7 @@ users. To get a token on behalf of a user of our app we need to be
 able to authenticate the user. If you were watching the logs carefully
 when the app started up you would have seen a random password being
 logged for the default Spring Boot user (per the
-http://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/htmlsingle/#boot-features-security[Spring
+https://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/htmlsingle/#boot-features-security[Spring
 Boot User Guide]). You can use this password to get a token on behalf of the user with id "user":
 
 ```

@@ -9,7 +9,7 @@ autoconfiguration features in Spring Boot.
 
 First we need to create a Spring Boot application,
 which can be done in a number of ways. The easiest is to go to
-http://start.spring.io and generate an empty project (choosing the
+https://start.spring.io and generate an empty project (choosing the
 "Web" dependency as starting points). Equivalently do
 this on the command line:
 
