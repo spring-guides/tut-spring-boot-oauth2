@@ -2,7 +2,7 @@ cache:
   directories:
   - $HOME/.m2
 jdk:
-- oraclejdk8
+- openjdk8
 language: java
 script: ./mvnw --fail-at-end --update-snapshots clean install
 notifications:
