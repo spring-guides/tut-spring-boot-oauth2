@@ -12,9 +12,7 @@
 		<module>simple</module>
 		<module>click</module>
 		<module>logout</module>
-		<module>manual</module>
-		<module>github</module>
-		<module>auth-server</module>
+		<module>two-providers</module>
 		<module>custom-error</module>
 	</modules>
 	

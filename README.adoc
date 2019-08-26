@@ -10,34 +10,34 @@ projects: [spring-security,spring-security-oauth,spring-boot]
 :star: {asterisk}
 :all: {asterisk}{asterisk}
 
-= Social Login with Spring Boot and OAuth2
+= Social Login with Spring Boot and OAuth 2.0
 
-This guide shows you how to build a sample app doing various things with "social login" using https://tools.ietf.org/html/rfc6749[OAuth2] and https://projects.spring.io/spring-boot/[Spring Boot].
-It starts with a simple, single-provider single-sign on, and works up to a self-hosted OAuth2 Authorization Server with a choice of authentication providers (https://developers.facebook.com[Facebook] or https://developer.github.com/[Github]).
-The samples are all single-page apps using Spring Boot and Spring OAuth on the back end.
-They also all use plain https://jquery.org/[jQuery] on the front end, but the changes needed to convert to a different JavaScript framework or to use server side rendering would be minimal.
+This guide shows you how to build a sample app doing various things with "social login" using https://tools.ietf.org/html/rfc6749[OAuth 2.0] and https://projects.spring.io/spring-boot/[Spring Boot].
 
-Because one of the samples is a full OAuth2 Authorization Server we have used the https://docs.spring.io/spring-security-oauth2-boot/docs/current/reference/htmlsingle/[shim JAR] which supports bridging from Spring Boot 2.0 to the old Spring Security OAuth2 library.
-The simpler samples could also be implemented using the native OAuth2 support in https://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/htmlsingle/#boot-features-security-oauth2[Spring Boot] security features.
-The configuration is very similar.
+It starts with a simple, single-provider single-sign on, and works up to a client with a choice of authentication providers:
+https://github.com/settings/developers[GitHub] or https://developers.google.com/identity/protocols/OpenIDConnect[Google].
+
+The samples are all single-page apps using Spring Boot and Spring Security on the back end.
+They also all use plain https://jquery.org/[jQuery] on the front end.
+But, the changes needed to convert to a different JavaScript framework or to use server-side rendering would be minimal.
+
+All samples are implemented using the native OAuth 2.0 support in https://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/htmlsingle/#boot-features-security-oauth2[Spring Boot].
 
 include::overview.adoc[]
 
 include::simple/README.adoc[leveloffset=+1]
 include::click/README.adoc[leveloffset=+1]
 include::logout/README.adoc[leveloffset=+1]
-include::manual/README.adoc[leveloffset=+1]
-include::github/README.adoc[leveloffset=+1]
-include::auth-server/README.adoc[leveloffset=+1]
+include::two-providers/README.adoc[leveloffset=+1]
 include::custom-error/README.adoc[leveloffset=+1]
 
 == Conclusion
 
 We have seen how to use Spring Boot and Spring Security to build apps in a number of styles with very little effort.
-The main theme running through all of the samples is "social" login using an external OAuth2 provider.
-The final sample could even be used to provide such a service "internally" because it has the same basic features that the external providers have.
+The main theme running through all of the samples is authentication using an external OAuth 2.0 provider.
+
 All of the sample apps can be easily extended and re-configured for more specific use cases, usually with nothing more than a configuration file change.
-Remember if you use versions of the samples in your own servers to register with Facebook or Github (or similar) and get client credentials for your own host addresses.
+Remember if you use versions of the samples in your own servers to register with GitHub (or similar) and get client credentials for your own host addresses.
 And remember not to put those credentials in source control!
 
 include::https://raw.githubusercontent.com/spring-guides/getting-started-macros/master/footer.adoc[]
