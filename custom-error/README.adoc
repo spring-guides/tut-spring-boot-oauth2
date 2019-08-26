@@ -1,140 +1,151 @@
 [[_custom_error]]
 = Adding an Error Page for Unauthenticated Users
 
-In this section we modify the <<_social_login_logout,logout>> app we built earlier, switching to Github authentication, and also giving some feedback to users that cannot authenticate.
-At the same time we take the opportunity to extend the authentication logic to include a rule that only allows users if they belong to a specific Github organization.
-The "organization" is a Github domain-specific concept, but similar rules could be devised for other providers, e.g. with Google you might want to only authenticate users from a specific domain.
+In this section, you'll modify the <<_social_login_two_providers,two-providers>> app you built earlier to give some feedback to users that cannot authenticate.
+At the same time you'll extend the authentication logic to include a rule that only allows users if they belong to a specific GitHub organization.
+The "organization" is a GitHub domain-specific concept, but similar rules could be devised for other providers.
+For example, with Google you might want to only authenticate users from a specific domain.
 
-== Switching to Github
+== Switching to GitHub
 
-The <<_social_login_logout,logout>> sample use Facebook as an OAuth2 provider.
-We can easily switch to Github by changing the local configuration:
+The <<_social_login_two_providers,two-providers>> sample uses GitHub as an OAuth 2.0 provider:
 
 .application.yml
 [source,yaml]
 ----
-security:
-  oauth2:
-    client:
-      clientId: bd1c0a783ccdd1c9b9e4
-      clientSecret: 1a9030fbca47a5b2c28e92f19050bb77824b5ad1
-      accessTokenUri: https://github.com/login/oauth/access_token
-      userAuthorizationUri: https://github.com/login/oauth/authorize
-      clientAuthenticationScheme: form
-    resource:
-      userInfoUri: https://api.github.com/user
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: bd1c0a783ccdd1c9b9e4
+            client-secret: 1a9030fbca47a5b2c28e92f19050bb77824b5ad1
+          # ...
 ----
 
 == Detecting an Authentication Failure in the Client
 
-On the client we need to be able to provide some feedback for a user that could not authenticate.
-To facilitate this we add a div with an informative message:
+On the client, you might like to provide some feedback for a user that could not authenticate.
+To facilitate this, you can add a div to which you'll eventually add an informative message.
 
 .index.html
 ----
-<div class="container text-danger error" style="display:none">
-There was an error (bad credentials).
-</div>
+<div class="container text-danger error"></div>
 ----
 
-This text will only be shown when the "error" element is shown, so we need some code to do that:
+Then, add a call to the `/error` endpoint, populating the `<div>` with the result:
 
 .index.html
 ----
-$.ajax({
-  url : "/user",
-  success : function(data) {
-    $(".unauthenticated").hide();
-    $("#user").html(data.userAuthentication.details.name);
-    $(".authenticated").show();
-  },
-  error : function(data) {
-    $("#user").html('');
-    $(".unauthenticated").show();
-    $(".authenticated").hide();
-    if (location.href.indexOf("error=true")>=0) {
-      $(".error").show();
+$.get("/error", function(data) {
+    if (data) {
+        $(".error").html(data);
+    } else {
+        $(".error").html('');
     }
-  }
 });
 ----
 
-The authentication function checks the browser location when it loads and if it finds a URL with "error=true" in it, the flag is set.
+The error function checks with the backend if there is any error to display
 
-== Adding an Error Page
+== Adding an Error Message
 
-To support the flag setting in the client we need to be able to capture an authentication error and redirect to the home page with that flag set in query parameters.
-Hence we need an  endpoint, in a regular `@Controller` like this:
+To support the retrieval of an error message, you'll need to capture it when authentication fails.
+To achieve this, you can configure an `AuthenticationFailureHandler`, like so:
+
+[source,java]
+----
+protected void configure(HttpSecurity http) throws Exception {
+	// @formatter:off
+	http
+	    // ... existing configuration
+	    .oauth2Login(o -> o
+            .failureHandler((request, response, exception) -> {
+			    request.getSession().setAttribute("error.message", exception.getMessage());
+			    handler.onAuthenticationFailure(request, response, exception);
+            })
+        );
+}
+----
+
+The above will save an error message to the session whenever authentication fails.
+
+Then, you can add a simple `/error` controller, like this one:
 
 .SocialApplication.java
 [source,java]
 ----
-@RequestMapping("/unauthenticated")
-public String unauthenticated() {
-  return "redirect:/?error=true";
+@GetMapping("/error")
+public String error() {
+	String message = (String) request.getSession().getAttribute("error.message");
+	request.getSession().removeAttribute("error.message");
+	return message;
 }
 ----
 
-In the sample app we put this in the main application class, which is now a `@Controller` (not a `@RestController`) so it can handle the redirect.
-The last thing we need is a mapping from an unauthenticated response (HTTP 401, a.k.a. UNAUTHORIZED) to the "/unauthenticated" endpoint we just added:
-
-.ServletCustomizer.java
-[source,java]
-----
-@Configuration
-public class ServletCustomizer {
-  @Bean
-  public EmbeddedServletContainerCustomizer customizer() {
-    return container -> {
-      container.addErrorPages(new ErrorPage(HttpStatus.UNAUTHORIZED, "/unauthenticated"));
-    };
-  }
-}
-----
-
-(In the sample, this is added as a nested class inside the main application, just for conciseness.)
+NOTE: This will replace the default `/error` page in the app, which is fine for our case, but may not be sophisticated enough for your needs.
 
 == Generating a 401 in the Server
 
-A 401 response will already be coming from Spring Security if the user cannot or does not want to login with Github, so the app is already working if you fail to authenticate (e.g. by rejecting the token grant).
+A 401 response will already be coming from Spring Security if the user cannot or does not want to login with GitHub, so the app is already working if you fail to authenticate (e.g. by rejecting the token grant).
 
-To spice things up a bit we will extend the authentication rule to reject users that are not in the right organization.
-It is easy to use the Github API to find out more about the user, so we just need to plug that into the right part of the authentication process.
-Fortunately, for such a simple use case, Spring Boot has provided an easy extension point: if we declare a `@Bean` of type `AuthoritiesExtractor` it will be used to construct the authorities (typically "roles") of an authenticated user.
-We can use that hook to assert the the user is in the correct organization, and throw an exception if not:
+To spice things up a bit, you can extend the authentication rule to reject users that are not in the right organization.
+
+You can use the GitHub API to find out more about the user, so you'll just need to plug that into the right part of the authentication process.
+
+Fortunately, for such a simple use case, Spring Boot has provided an easy extension point:
+If you declare a `@Bean` of type `OAuth2UserService`, it will be used identify the user principal.
+You can use that hook to assert the the user is in the correct organization, and throw an exception if not:
 
 .SocialApplication.java
 [source,java]
 ----
 @Bean
-public AuthoritiesExtractor authoritiesExtractor(OAuth2RestOperations template) {
-  return map -> {
-    String url = (String) map.get("organizations_url");
-    @SuppressWarnings("unchecked")
-    List<Map<String, Object>> orgs = template.getForObject(url, List.class);
-    if (orgs.stream()
-        .anyMatch(org -> "spring-projects".equals(org.get("login")))) {
-      return AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_USER");
-    }
-    throw new BadCredentialsException("Not in Spring Projects origanization");
-  };
+public OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService(WebClient rest) {
+    DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
+    return request -> {
+        OAuth2User user = delegate.loadUser(request);
+        if (!"github".equals(request.getClientRegistration.getRegistrationId())) {
+        	return user;
+        }
+
+        OAuth2AuthorizedClient client = new OAuth2AuthorizedClient
+                (request.getClientRegistration(), user.getName(), request.getAccessToken());
+        String url = user.getAttribute("organizations_url");
+        List<Map<String, Object>> orgs = rest
+                .get().uri(url)
+                .attributes(oauth2AuthorizedClient(client))
+                .retrieve()
+                .bodyToMono(List.class)
+                .block();
+
+        if (orgs.stream().anyMatch(org -> "spring-projects".equals(org.get("login")))) {
+            return user;
+        }
+
+        throw new OAuth2AuthenticationException(new OAuth2Error("invalid_token", "Not in Spring Team", ""));
+    };
 }
 ----
 
-Note that we have autowired a `OAuth2RestOperations` into this method, so we can use that to access the Github API on behalf of the authenticated user.
-We do that, and loop over the organizations, looking for one that matches "spring-projects" (this is the organization that is used to store Spring open source projects).
+Note that this code is dependent on a `WebClient` instance for accessing the GitHub API on behalf of the authenticated user.
+Having done that, it loops over the organizations, looking for one that matches "spring-projects" (this is the organization that is used to store Spring open source projects).
 You can substitute your own value there if you want to be able to authenticate successfully and you are not in the Spring Engineering team.
-If there is no match, we throw `BadCredentialsException` and this is picked up by Spring Security and turned in to a 401 response.
+If there is no match, it throws an `OAuth2AuthenticationException`, and this is picked up by Spring Security and turned in to a 401 response.
 
-The `OAuth2RestOperations` has to be created as a bean as well (as of Spring Boot 1.4), but that's trivial because its ingredients are all autowirable by virtue of having used `@EnableOAuth2Sso`:
+The `WebClient` has to be created as a bean as well, but that's trivial because its ingredients are all autowirable by virtue of having used `spring-boot-starter-oauth2-client`:
 
-[source,java,indent=0]
+[source,java]
 ----
 @Bean
-public OAuth2RestTemplate oauth2RestTemplate(OAuth2ProtectedResourceDetails resource, OAuth2ClientContext context) {
-	return new OAuth2RestTemplate(resource, context);
+public WebClient rest(ClientRegistrationRepository clients, OAuth2AuthorizedClientRepository authz) {
+    ServletOAuth2AuthorizedClientExchangeFilterFunction oauth2 =
+            new ServletOAuth2AuthorizedClientExchangeFilterFunction(clients, authz);
+    return WebClient.builder()
+            .filter(oauth2).build();
 }
 ----
 
-TIP: Obviously the code above can be generalized to other authentication rules, some applicable to Github and some to other OAuth2 providers.
-All you need is the `OAuth2RestOperations` and some knowledge of the provider's API.
+TIP: Obviously the code above can be generalized to other authentication rules, some applicable to GitHub and some to other OAuth 2.0 providers.
+All you need is the `WebClient` and some knowledge of the provider's API.

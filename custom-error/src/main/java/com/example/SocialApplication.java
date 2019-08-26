@@ -15,84 +15,117 @@
  */
 package com.example;
 
-import java.security.Principal;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.AuthoritiesExtractor;
-import org.springframework.boot.web.server.ConfigurableWebServerFactory;
-import org.springframework.boot.web.server.ErrorPage;
-import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.oauth2.client.OAuth2ClientContext;
-import org.springframework.security.oauth2.client.OAuth2RestOperations;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
-import org.springframework.security.oauth2.client.resource.OAuth2ProtectedResourceDetails;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import static org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient;
 
 @SpringBootApplication
-@EnableOAuth2Sso
 @Controller
 public class SocialApplication extends WebSecurityConfigurerAdapter {
 
 	@Bean
-	public OAuth2RestTemplate oauth2RestTemplate(OAuth2ProtectedResourceDetails resource, OAuth2ClientContext context) {
-		return new OAuth2RestTemplate(resource, context);
+	public WebClient rest(ClientRegistrationRepository clients, OAuth2AuthorizedClientRepository authz) {
+		ServletOAuth2AuthorizedClientExchangeFilterFunction oauth2 =
+				new ServletOAuth2AuthorizedClientExchangeFilterFunction(clients, authz);
+		return WebClient.builder()
+				.filter(oauth2).build();
 	}
 
 	@Bean
-	public AuthoritiesExtractor authoritiesExtractor(OAuth2RestOperations template) {
-		return map -> {
-			String url = (String) map.get("organizations_url");
-			@SuppressWarnings("unchecked")
-			List<Map<String, Object>> orgs = template.getForObject(url, List.class);
-			if (orgs.stream().anyMatch(org -> "spring-projects".equals(org.get("login")))) {
-				return AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_USER");
+	public OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService(WebClient rest) {
+		DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
+		return request -> {
+			OAuth2User user = delegate.loadUser(request);
+			if (!"github".equals(request.getClientRegistration().getRegistrationId())) {
+				return user;
 			}
-			throw new BadCredentialsException("Not in Spring Team");
+
+			OAuth2AuthorizedClient client = new OAuth2AuthorizedClient
+					(request.getClientRegistration(), user.getName(), request.getAccessToken());
+			String url = user.getAttribute("organizations_url");
+			List<Map<String, Object>> orgs = rest
+					.get().uri(url)
+					.attributes(oauth2AuthorizedClient(client))
+					.retrieve()
+					.bodyToMono(List.class)
+					.block();
+
+			if (orgs.stream().anyMatch(org -> "spring-projects".equals(org.get("login")))) {
+				return user;
+			}
+
+			throw new OAuth2AuthenticationException(new OAuth2Error("invalid_token", "Not in Spring Team", ""));
 		};
 	}
 
-	@RequestMapping("/user")
+	@GetMapping("/user")
 	@ResponseBody
-	public Principal user(Principal principal) {
-		return principal;
+	public Map<String, Object> user(@AuthenticationPrincipal OAuth2User principal) {
+		return Collections.singletonMap("name", principal.getAttribute("name"));
 	}
 
-	@RequestMapping("/unauthenticated")
-	public String unauthenticated() {
-		return "redirect:/?error=true";
+	@GetMapping("/error")
+	@ResponseBody
+	public String error(HttpServletRequest request) {
+		String message = (String) request.getSession().getAttribute("error.message");
+		request.getSession().removeAttribute("error.message");
+		return message;
 	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		// @formatter:off
-		http.antMatcher("/**").authorizeRequests().antMatchers("/", "/login**", "/webjars/**", "/error**").permitAll().anyRequest()
-				.authenticated().and().logout().logoutSuccessUrl("/").permitAll().and().csrf()
-				.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
-		// @formatter:on
-	}
+		SimpleUrlAuthenticationFailureHandler handler = new SimpleUrlAuthenticationFailureHandler("/");
 
-	@Configuration
-	protected static class ServletCustomizer {
-		@Bean
-		public WebServerFactoryCustomizer<ConfigurableWebServerFactory> customizer() {
-			return container -> {
-				container.addErrorPages(new ErrorPage(HttpStatus.UNAUTHORIZED, "/unauthenticated"));
-			};
-		}
+		// @formatter:off
+		http.antMatcher("/**")
+			.authorizeRequests(a -> a
+				.antMatchers("/", "/error", "/webjars/**").permitAll()
+				.anyRequest().authenticated()
+			)
+			.exceptionHandling(e -> e
+				.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+			)
+			.csrf(c -> c
+				.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+			)
+			.logout(l -> l
+				.logoutSuccessUrl("/").permitAll()
+			)
+			.oauth2Login(o -> o
+				.failureHandler((request, response, exception) -> {
+					request.getSession().setAttribute("error.message", exception.getMessage());
+					handler.onAuthenticationFailure(request, response, exception);
+				})
+			);
+		// @formatter:on
 	}
 
 	public static void main(String[] args) {

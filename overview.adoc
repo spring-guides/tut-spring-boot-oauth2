@@ -1,49 +1,33 @@
-There are several samples building on each other adding new features:
+There are several samples building on each other, adding new features at each step:
 
 * <<_social_login_simple,**simple**>>: a very basic static app with just a home page and
-unconditional login through via Spring Boot's `@EnableOAuth2Sso` (if
-you visit the home page you will be automatically redirected to
-Facebook).
+unconditional login via Spring Boot's OAuth 2.0 configuration properties
+(if you visit the home page, you will be automatically redirected to GitHub).
 
-* <<_social_login_click,**click**>>: adds an explicit link that the user has to click to
-login.
+* <<_social_login_click,**click**>>: adds an explicit link that the user has to click to login.
 
 * <<_social_login_logout,**logout**>>: adds a logout link as well for authenticated users.
 
-* <<_social_login_manual,**manual**>>: shows how the `@EnableOAuth2Sso` works by unpicking it
-and configuring all its pieces manually.
-
-* <<_social_login_github,**github**>>: adds a second login provider in Github, so the user can
+* <<_social_login_two_providers,**two-providers**>>: adds a second login provider so the user can
 choose on the home page which one to use.
 
-* <<_social_login_authserver,**auth-server**>>: turns the app into a fully-fledged OAuth2
-Authorization Server, able to issue its own tokens, but still using
-the external OAuth2 providers for authentication.
+* <<_social_login_custom_error,**custom-error**>>: adds an error message for unauthenticated users,
+and a custom authentication based on GitHub's API.
 
-* <<_social_login_custom_error,**custom-error**>>: adds an error message
-for unauthenticated users, and a custom authentication based on Github 
-API.
+NOTE: The changes needed to migrate from one app to the next one in the feature ladder can be tracked in
+ https://github.com/spring-guides/tut-spring-boot-oauth2[the source code].
+Each version of the app is its own directory so that you can compare their differences.
 
-NOTE: The changes needed to migrate from one app to the next one in
-the feature ladder can be tracked in the source (the source code is
-https://github.com/spring-guides/tut-spring-boot-oauth2[in
-Github]). The first 6 changes in the repository are transforming a
-single app so you can easily see the differences. Any further
-differences you might see between the app in those early commits and
-the final state you see in the guide are cosmetic.
+Each app can be imported into an IDE. You can run the `main` method in `SocialApplication` to start an app.
+They all come up with a home page on http://localhost:8080
+(and all require that you have at least a GitHub and Google account if you want to log in and see the content).
 
-Each of them can be imported into an IDE and there is a main class
-`SocialApplication` that you can run there to start the apps. They all
-come up with a home page on http://localhost:8080 (and all require
-that you have at least a Facebook account if you want to log in and
-see the content). You can also run all the apps on the command line
-using `mvn spring-boot:run` or by building the jar file and running it
-with `mvn package` and `java -jar target/*.jar` (per the
+You can also run all the apps on the command line using `mvn spring-boot:run`
+or by building the jar file and running it with `mvn package` and `java -jar target/*.jar`
+(per the
 https://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/htmlsingle/#getting-started-first-application-run[Spring
-Boot docs] and other
-https://spring.io/guides/gs/spring-boot/[available
-documentation]). There is no need to install Maven if you use the
-https://github.com/takari/maven-wrapper[wrapper] at the top level,
+Boot docs] and other https://spring.io/guides/gs/spring-boot/[available documentation]).
+There is no need to install Maven if you use the https://github.com/takari/maven-wrapper[wrapper] at the top level,
 e.g.
 
 ```
@@ -52,12 +36,8 @@ $ ../mvnw package
 $ java -jar target/*.jar
 ```
 
-NOTE: The apps all work on `localhost:8080` because they use OAuth2
-clients registered with Facebook and Github for that address. To run
-them on a different host or port, you need to register your own apps
-and put the credentials in the config files. There is no danger of
-leaking your Facebook or Github credentials beyond localhost if you
-use the default values, but be careful what you expose on the
-internet, and don't put your own app registrations in public source
-control.
+NOTE: The apps all work on `localhost:8080` because they'll use OAuth 2.0 clients registered with GitHub and Google for that address.
+To run them on a different host or port, you need to register your apps that way.
+There is no danger of leaking your credentials beyond localhost if you use the default values.
+But, be careful what you expose on the Internet, and don't put your own app registrations in public source control.
 

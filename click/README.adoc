@@ -1,108 +1,130 @@
 [[_social_login_click]]
 = Add a Welcome Page
 
-In this section we modify the <<_social_login_simple,simple>> app we just built, by adding an explicit link to login with Facebook.
+In this section, you'll modify the <<_social_login_simple,simple>> app you just built by adding an explicit link to login with GitHub.
 Instead of being redirected immediately, the new link will be visible on the home page, and the user can choose to login or to stay unauthenticated.
-Only when the user has clicked on the link will he be shown the secure content.
+Only when the user has clicked on the link will the secure content be rendered.
 
-== Conditional Content in Home Page
+== Conditional Content on the Home Page
 
-To render some content conditional on whether the user is authenticated or not we could use server side rendering (e.g. with Freemarker or Tymeleaf), or we can just ask the browser to to it, using some JavaScript.
-To do that we are going to use https://angularjs.org/[AngularJS], but if you prefer to use a different framework, it shouldn't be very hard to translate the client code.
+To render content on the condition that the user is authenticated, you have the option of either server-side or client-side rendering.
 
-To get started with the dynamic content we need to mark up the HTML in parts of it are going to display it:
+Here, you'll change the client side with https://jquery.org/[JQuery], though if you prefer to use something else, it shouldn't be very hard to translate the client code.
+
+To get started with the dynamic content, you need to mark a couple of HTML elements like so:
 
 .index.html
 [source,html]
 ----
 <div class="container unauthenticated">
-    With Facebook: <a href="/login">click here</a>
+    With GitHub: <a href="/oauth2/authorization/github">click here</a>
 </div>
 <div class="container authenticated" style="display:none">
     Logged in as: <span id="user"></span>
 </div>
 ----
 
-This HTML sets us up with a need for some client side code that manipulates the `authenticated`, `unauthenticated` and `user` elements.
-Here's a simple implementation of those features (drop them in at the end of the `<body>`):
+By default, the first `<div>` will show, and the second one won't.
+Note also the empty `<span>` with an `id` attribute.
+
+In a moment, you'll add a server-side endpoint that will return the logged in user details as JSON.
+
+But, first, add the following JavaScript, which will hit that endpoint.
+Based on the endpoint's response, this JavaScript will populate the `<span>` tag with the user's name and toggle the `<div>` appropriately:
 
 .index.html
 [source,html]
 ----
 <script type="text/javascript">
     $.get("/user", function(data) {
-        $("#user").html(data.userAuthentication.details.name);
+        $("#user").html(data.name);
         $(".unauthenticated").hide()
         $(".authenticated").show()
     });
 </script>
 ----
 
-== Server Side Changes
+Note that this JavaScript expects the server-side endpoint to be called `/user`.
 
-For this to work we need some changes on the server side.
-The "home" controller needs an endpoint at "/user" that describes the currently authenticated user.
-That's quite easy to do, e.g. in our main class:
+== The `/user` Endpoint
 
-.SocialApplication
+Now, you'll add the server-side endpoint just mentioned, calling it `/user`.
+It will send back the currently logged-in user, which we can do quite easily in our main class:
+
+.SocialApplication.java
 [source,java]
 ----
 @SpringBootApplication
-@EnableOAuth2Sso
 @RestController
 public class SocialApplication {
   
-  @RequestMapping("/user")
-  public Principal user(Principal principal) {
-    return principal;
-  }
+    @GetMapping("/user")
+    public Map<String, Object> user(@AuthenticationPrincipal OAuth2User principal) {
+        Collections.singletonMap("name", principal.getAttribute("name"));
+    }
 
-  public static void main(String[] args) {
-    SpringApplication.run(SocialApplication.class, args);
-  }
+    public static void main(String[] args) {
+        SpringApplication.run(SocialApplication.class, args);
+    }
 
 }
 ----
 
-Note the use of `@RestController` and `@RequestMapping` and the `java.security.Principal` we inject into the handler method.
+Note the use of `@RestController`, `@GetMapping`, and the `OAuth2User` injected into the handler method.
 
-WARNING: It's not a great idea to return a whole `Principal` in a `/user` endpoint like that (it might contain information you would rather not reveal to a browser client).
-We only did it to get something working quickly.
-Later in the guide we will convert the endpoint to hide the information we don't need the browser to have.
+WARNING: It's not a great idea to return a whole `OAuth2User` in an endpoint since it might contain information you would rather not reveal to a browser client.
 
-This app will now work fine and authenticate as before, but without giving the user a chance to click on the link we just provided.
-To make the link visible we also need to switch off the security on the home page by adding a `WebSecurityConfigurer`:
+== Making the Home Page Public
+
+There's one final change you'll need to make.
+
+This app will now work fine and authenticate as before, but it's still going to redirect before showing the page.
+To make the link visible, we also need to switch off the security on the home page by extending `WebSecurityConfigurerAdapter`:
 
 .SocialApplication
 [source,java]
 ----
 @SpringBootApplication
-@EnableOAuth2Sso
 @RestController
 public class SocialApplication extends WebSecurityConfigurerAdapter {
   
-  ...
+    // ...
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http
-      .antMatcher("/**")
-      .authorizeRequests()
-        .antMatchers("/", "/login**", "/webjars/**", "/error**")
-        .permitAll()
-      .anyRequest()
-        .authenticated();
-  }
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+    	// @formatter:off
+        http
+            .authorizeRequests(a -> a
+                .antMatchers("/", "/error", "/webjars/**").permitAll()
+                .anyRequest().authenticated()
+            )
+            .exceptionHandling(e -> e
+                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+            )
+            .oauth2Login();
+        // @formatter:on
+    }
 
 }
 ----
 
-Spring Boot attaches a special meaning to a `WebSecurityConfigurer` on the class that carries the `@EnableOAuth2Sso` annotation: it uses it to configure the security filter chain that carries the OAuth2 authentication processor.
-So all we need to do to make our home page visible is to explicitly `authorizeRequests()` to the home page and the static resources it contains (we also include access to the login endpoints which handle the authentication).
-All other requests (e.g. to the `/user` endpoint) require authentication.
+Spring Boot attaches special meaning to a `WebSecurityConfigurerAdapter` on the class annotated with `@SpringBootApplication`:
+It uses it to configure the security filter chain that carries the OAuth 2.0 authentication processor.
 
-NOTE: `/error**` is an unprotected path because we want Spring Boot to be able to render errors if there is a problem in the app, even if the user is unauthenticated.
+The above configuration indicates a whitelist of permitted endpoints, with every other endpoint requiring authentication.
 
-With that change in place the application is complete, and if you run it and visit the home page you should see a nicely styled HTML link to "login with Facebook".
-The link takes you not directly to Facebook, but to the local path that processes the authentication (and sends a redirect to Facebook).
-Once you have authenticated you get redirected back to the local app, where it now displays your name (assuming you have set up your permissions in Facebook to allow access to that data).
+You want to allow:
+
+* `/` since that's the page you just made dynamic, with some of its content visible to unauthenticated users
+* `/error` since that's a Spring Boot endpoint for displaying errors, and
+* `/webjars/**` since you'll want your JavaScript to run for all visitors, authenticated or not
+
+You won't see anything about `/user` in this configuration, though.
+Everything, including `/user` remains secure unless indicated because of the `.anyRequest().authenticated()` configuration at the end.
+
+Finally, since we are interfacing with the backend over Ajax, we'll want to configure endpoints to respond with a 401 instead of the default behavior of redirecting to a login page.
+Configuring the `authenticationEntryPoint` achieves this for us.
+
+With those changes in place, the application is complete, and if you run it and visit the home page you should see a nicely styled HTML link to "login with GitHub".
+The link takes you not directly to GitHub, but to the local path that processes the authentication (and sends a redirect to GitHub).
+Once you have authenticated, you get redirected back to the local app, where it now displays your name (assuming you have set up your permissions in GitHub to allow access to that data).

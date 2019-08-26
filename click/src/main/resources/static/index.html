@@ -16,14 +16,14 @@
 <body>
     <h1>Login</h1>
     <div class="container unauthenticated">
-        With Facebook: <a href="/login">click here</a>
+        With GitHub: <a href="/oauth2/authorization/github">click here</a>
     </div>
     <div class="container authenticated" style="display: none">
         Logged in as: <span id="user"></span>
     </div>
     <script type="text/javascript">
           $.get("/user", function(data) {
-            $("#user").html(data.userAuthentication.details.name);
+            $("#user").html(data.name);
             $(".unauthenticated").hide()
             $(".authenticated").show()
           });
