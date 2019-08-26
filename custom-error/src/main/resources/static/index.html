@@ -15,10 +15,12 @@
 </head>
 <body>
     <h1>Login</h1>
-    <div class="container text-danger error" style="display: none">There
-        was an error (bad credentials).</div>
+    <div class="container text-danger error"></div>
     <div class="container unauthenticated">
-        With Github: <a href="/login">click here</a>
+        With GitHub: <a href="/oauth2/authorization/github">click here</a>
+    </div>
+    <div class="container unauthenticated">
+        With Google: <a href="/oauth2/authorization/google">click here</a>
     </div>
     <div class="container authenticated" style="display: none">
         Logged in as: <span id="user"></span>
@@ -41,29 +43,24 @@
               }
             }
           });
-          $.ajax({
-            url : "/user",
-            success : function(data) {
-              $(".error").hide();
+          $.get("/user", function(data) {
+              $("#user").html(data.name);
               $(".unauthenticated").hide();
-              $("#user").html(data.userAuthentication.details.name);
               $(".authenticated").show();
-            },
-            error : function(data) {
-              $("#user").html('');
-              $(".unauthenticated").show();
-              $(".authenticated").hide();
-              if (location.href.indexOf("error=true")>=0) {
-                $(".error").show();
-              }
-            }
+          });
+          $.get("/error", function(data) {
+             if (data) {
+                 $(".error").html(data);
+             } else {
+                 $(".error").html('');
+             }
           });
           var logout = function() {
             $.post("/logout", function() {
               $("#user").html('');
               $(".unauthenticated").show();
               $(".authenticated").hide();
-            })
+            });
             return true;
           }
         </script>
