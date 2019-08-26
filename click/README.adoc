@@ -1,22 +1,14 @@
 [[_social_login_click]]
 = Add a Welcome Page
 
-In this section we modify the <<_social_login_simple,simple>> app we
-just built, by adding an explicit link to login with Facebook. Instead
-of being redirected immediately, the new link will be visible on the
-home page, and the user can choose to login or to stay
-unauthenticated. Only when the user has clicked on the link will he be
-shown the secure content.
+In this section we modify the <<_social_login_simple,simple>> app we just built, by adding an explicit link to login with Facebook.
+Instead of being redirected immediately, the new link will be visible on the home page, and the user can choose to login or to stay unauthenticated.
+Only when the user has clicked on the link will he be shown the secure content.
 
 == Conditional Content in Home Page
 
-To render some content conditional on whether the user is
-authenticated or not we could use server side rendering (e.g. with
-Freemarker or Tymeleaf), or we can just ask the browser to to it,
-using some JavaScript. To do that we are going to use
-https://angularjs.org/[AngularJS], but if you prefer to use a
-different framework, it shouldn't be very hard to translate the client
-code.
+To render some content conditional on whether the user is authenticated or not we could use server side rendering (e.g. with Freemarker or Tymeleaf), or we can just ask the browser to to it, using some JavaScript.
+To do that we are going to use https://angularjs.org/[AngularJS], but if you prefer to use a different framework, it shouldn't be very hard to translate the client code.
 
 To get started with the dynamic content we need to mark up the HTML in parts of it are going to display it:
 
@@ -31,10 +23,8 @@ To get started with the dynamic content we need to mark up the HTML in parts of 
 </div>
 ----
 
-This HTML sets us up with a need for some client side code that manipulates the 
-`authenticated`, `unauthenticated` and `user` elements.
-Here's a simple implementation of those features (drop them in
-at the end of the `<body>`):
+This HTML sets us up with a need for some client side code that manipulates the `authenticated`, `unauthenticated` and `user` elements.
+Here's a simple implementation of those features (drop them in at the end of the `<body>`):
 
 .index.html
 [source,html]
@@ -50,9 +40,9 @@ at the end of the `<body>`):
 
 == Server Side Changes
 
-For this to work we need some changes on the server side. The "home"
-controller needs an endpoint at "/user" that describes the currently
-authenticated user. That's quite easy to do, e.g. in our main class:
+For this to work we need some changes on the server side.
+The "home" controller needs an endpoint at "/user" that describes the currently authenticated user.
+That's quite easy to do, e.g. in our main class:
 
 .SocialApplication
 [source,java]
@@ -74,19 +64,14 @@ public class SocialApplication {
 }
 ----
 
-Note the use of `@RestController` and `@RequestMapping` and the
-`java.security.Principal` we inject into the handler method.
+Note the use of `@RestController` and `@RequestMapping` and the `java.security.Principal` we inject into the handler method.
 
-WARNING: It's not a great idea to return a whole `Principal` in a
-`/user` endpoint like that (it might contain information you would
-rather not reveal to a browser client). We only did it to get
-something working quickly. Later in the guide we will convert the
-endpoint to hide the information we don't need the browser to have.
+WARNING: It's not a great idea to return a whole `Principal` in a `/user` endpoint like that (it might contain information you would rather not reveal to a browser client).
+We only did it to get something working quickly.
+Later in the guide we will convert the endpoint to hide the information we don't need the browser to have.
 
-This app will now work fine and authenticate as before, but without
-giving the user a chance to click on the link we just provided. To
-make the link visible we also need to switch off the security on the
-home page by adding a `WebSecurityConfigurer`:
+This app will now work fine and authenticate as before, but without giving the user a chance to click on the link we just provided.
+To make the link visible we also need to switch off the security on the home page by adding a `WebSecurityConfigurer`:
 
 .SocialApplication
 [source,java]
@@ -112,25 +97,12 @@ public class SocialApplication extends WebSecurityConfigurerAdapter {
 }
 ----
 
-Spring Boot attaches a special meaning to a `WebSecurityConfigurer` on
-the class that carries the `@EnableOAuth2Sso` annotation: it uses it
-to configure the security filter chain that carries the OAuth2
-authentication processor. So all we need to do to make our home page
-visible is to explicitly `authorizeRequests()` to the home page and
-the static resources it contains (we also include access to the login
-endpoints which handle the authentication). All other requests
-(e.g. to the `/user` endpoint) require authentication.
+Spring Boot attaches a special meaning to a `WebSecurityConfigurer` on the class that carries the `@EnableOAuth2Sso` annotation: it uses it to configure the security filter chain that carries the OAuth2 authentication processor.
+So all we need to do to make our home page visible is to explicitly `authorizeRequests()` to the home page and the static resources it contains (we also include access to the login endpoints which handle the authentication).
+All other requests (e.g. to the `/user` endpoint) require authentication.
 
-NOTE: `/error**` is an unprotected path because we want Spring Boot
-to be able to render errors if there is a problem in the app, even
-if the user is unauthenticated.
+NOTE: `/error**` is an unprotected path because we want Spring Boot to be able to render errors if there is a problem in the app, even if the user is unauthenticated.
 
-With that change in place the application is complete, and if you run
-it and visit the home page you should see a nicely styled HTML link to
-"login with Facebook". The link takes you not directly to Facebook,
-but to the local path that processes the authentication (and sends a
-redirect to Facebook). Once you have authenticated you get redirected
-back to the local app, where it now displays your name (assuming you
-have set up your permissions in Facebook to allow access to that
-data).
-
+With that change in place the application is complete, and if you run it and visit the home page you should see a nicely styled HTML link to "login with Facebook".
+The link takes you not directly to Facebook, but to the local path that processes the authentication (and sends a redirect to Facebook).
+Once you have authenticated you get redirected back to the local app, where it now displays your name (assuming you have set up your permissions in Facebook to allow access to that data).
