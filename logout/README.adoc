@@ -1,21 +1,14 @@
 [[_social_login_logout]]
 = Add a Logout Button
 
-In this section we modify the <<_social_login_click,click>> app we
-built by adding a button that allows the user to log out of the
-app. This seems like a simple feature, but it requires a bit of care
-to implement, so it's worth spending some time discussing exactly how
-to do it. Most of the changes are to do with the fact that we are
-transforming the app from a read-only resource to a read-write one
-(logging out requires a state change), so the same changes would be
-needed in any realistic application that wasn't just static content.
+In this section we modify the <<_social_login_click,click>> app we built by adding a button that allows the user to log out of the app.
+This seems like a simple feature, but it requires a bit of care to implement, so it's worth spending some time discussing exactly how to do it.
+Most of the changes are to do with the fact that we are transforming the app from a read-only resource to a read-write one (logging out requires a state change), so the same changes would be needed in any realistic application that wasn't just static content.
 
 == Client Side Changes
 
-On the client we just need to provide a logout button and some
-JavaScript to call back to the server to ask for the authentication to
-be cancelled. First, in the "authenticated" section of the UI, we add
-the button:
+On the client we just need to provide a logout button and some JavaScript to call back to the server to ask for the authentication to be cancelled.
+First, in the "authenticated" section of the UI, we add the button:
 
 .index.html
 ----
@@ -27,8 +20,7 @@ the button:
 </div>
 ----
 
-and then we provide the `logout()` function that it refers to in the
-JavaScript:
+and then we provide the `logout()` function that it refers to in the JavaScript:
 
 .index.html
 ----
@@ -42,15 +34,13 @@ var logout = function() {
 }
 ----
 
-The `logout()` function does a POST to `/logout` and then clears the dynamic content. Now we can switch over to the server side to
-implement that endpoint.
+The `logout()` function does a POST to `/logout` and then clears the dynamic content.
+Now we can switch over to the server side to implement that endpoint.
 
 == Adding a Logout Endpoint
 
-Spring Security has built in support for a `/logout` endpoint which
-will do the right thing for us (clear the session and invalidate the
-cookie). To configure the endpoint we simply extend the existing
-`configure()` method in our `WebSecurityConfigurer`:
+Spring Security has built in support for a `/logout` endpoint which will do the right thing for us (clear the session and invalidate the cookie).
+To configure the endpoint we simply extend the existing `configure()` method in our `WebSecurityConfigurer`:
 
 .SocialApplication.java
 [source,java]
@@ -63,23 +53,13 @@ protected void configure(HttpSecurity http) throws Exception {
 }
 ----
 
-The `/logout` endpoint requires us to POST to it, and to protect the
-user from Cross Site Request Forgery (CSRF, pronounced "sea surf"), it
-requires a token to be included in the request. The value of the token
-is linked to the current session, which is what provides the
-protection, so we need a way to get that data into our JavaScript app.
+The `/logout` endpoint requires us to POST to it, and to protect the user from Cross Site Request Forgery (CSRF, pronounced "sea surf"), it requires a token to be included in the request.
+The value of the token is linked to the current session, which is what provides the protection, so we need a way to get that data into our JavaScript app.
 
-Many JavaScript frameworks have built in support for CSRF (e.g. in
-Angular they call it XSRF), but it is often implemented in a slightly
-different way than the out-of-the box behaviour of Spring
-Security. For instance in Angular the front end would like the server
-to send it a cookie called "XSRF-TOKEN" and if it sees that, it will
-send the value back as a header named "X-XSRF-TOKEN". We can implement
-the same behaviour with our simple jQuery client, and then the server
-side changes will work with other front end implementations with no or
-very few changes. To teach Spring Security about this we need to add a
-filter that creates the cookie and also we need to tell the existing
-CRSF filter about the header name. In the `WebSecurityConfigurer`:
+Many JavaScript frameworks have built in support for CSRF (e.g. in Angular they call it XSRF), but it is often implemented in a slightly different way than the out-of-the box behaviour of Spring Security.
+For instance in Angular the front end would like the server to send it a cookie called "XSRF-TOKEN" and if it sees that, it will send the value back as a header named "X-XSRF-TOKEN".
+We can implement the same behaviour with our simple jQuery client, and then the server side changes will work with other front end implementations with no or very few changes.
+To teach Spring Security about this we need to add a filter that creates the cookie and also we need to tell the existing CRSF filter about the header name. In the `WebSecurityConfigurer`:
 
 .SocialApplication.java
 [source,java]
@@ -94,10 +74,8 @@ protected void configure(HttpSecurity http) throws Exception {
 
 == Adding the CSRF Token in the Client
 
-Since we are not using a higher level framework in this sample, we
-need to explicitly add the CSRF token, which we made available as a
-cookie from the backend. To make the code a bit simpler, we include an
-additional library:
+Since we are not using a higher level framework in this sample, we need to explicitly add the CSRF token, which we made available as a cookie from the backend.
+To make the code a bit simpler, we include an additional library:
 
 .pom.xml
 [source,xml]
@@ -139,16 +117,11 @@ beforeSend : function(xhr, settings) {
 
 == Ready To Roll!
 
-With those changes in place we are ready to run the app and try out
-the new logout button. Start the app and load the home page in a new
-browser window. Click on the "login" link to take you to Facebook (if
-you are already logged in there you might not notice the
-redirect). Click on the "Logout" button to cancel the current session
-and return the app to the unauthenticated state. If you are curious
-you should be able to see the new cookies and headers in the requests
-that the browser exchanges with the local server.
+With those changes in place we are ready to run the app and try out the new logout button.
+Start the app and load the home page in a new browser window.
+Click on the "login" link to take you to Facebook (if you are already logged in there you might not notice the redirect).
+Click on the "Logout" button to cancel the current session and return the app to the unauthenticated state.
+If you are curious you should be able to see the new cookies and headers in the requests that the browser exchanges with the local server.
 
-Remember that now the logout endpoint is working with the browser
-client, then all other HTTP requests (POST, PUT, DELETE, etc.) will
-also work just as well. So this should be a good platform for an
-application with some more realistic features.
+Remember that now the logout endpoint is working with the browser client, then all other HTTP requests (POST, PUT, DELETE, etc.) will also work just as well.
+So this should be a good platform for an application with some more realistic features.
