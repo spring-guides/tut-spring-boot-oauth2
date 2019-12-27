@@ -7,14 +7,7 @@ This will be quite easy if we take advantage of the autoconfiguration features i
 == Creating a New Project
 
 First we need to create a Spring Boot application, which can be done in a number of ways.
-The easiest is to go to https://start.spring.io and generate an empty project (choosing the "Web" dependency as starting points).
-Equivalently do this on the command line:
-
-[source]
-----
-$ mkdir ui && cd ui
-$ curl https://start.spring.io/starter.tgz -d style=web -d name=simple | tar -xzvf - 
-----
+The easiest is to go to https://start.spring.io and generate a new project, choosing the "`Spring Web`" dependency.
 
 You can then import that project into your favourite IDE (it's a normal Maven Java project by default), or just work with the files and "mvn" on the command line.
 
@@ -140,7 +133,7 @@ If you stay logged into Facebook, you won't have to re-authenticate with this lo
 
 TIP: if you are working through this section with the sample application, be sure to clear your browser cache of cookies and HTTP Basic credentials. In Chrome the best way to do that for a single server is to open a new incognito window.
 
-**** 
+****
 It is safe to grant access to this sample because only the app running locally can use the tokens and the scope it asks for is limited.
 Be aware of what you are approving when you log into apps like this though: they might ask for permission to do more than you are comfortable with (e.g. they might ask for permission to change your personal data, which would be unlikely to be in your interest).
 ****
