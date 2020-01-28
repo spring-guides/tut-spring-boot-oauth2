@@ -1,0 +1,110 @@
+[[_social_login_github]]
+= Login with Github
+
+In this section we modify the <<_social_login_manual,app>> we built already, adding a link so the user can choose to authenticate with Github, in addition to the original link to Facebook.
+
+== Adding the Github Link
+
+In the client the change is trivial, we just add another link:
+
+.index.html
+[source,html]
+----
+<div class="container unauthenticated">
+  <div>
+    With Facebook: <a href="/login/facebook">click here</a>
+  </div>
+  <div>
+    With Github: <a href="/login/github">click here</a>
+  </div>
+</div>
+----
+
+In principle, once we start adding authentication providers, we may need to be more careful about the data returned from the "/user" endpoint.
+It turns out that Github and Facebook both have a "name" field in the same place in their user info, so there isn't any change in practice to our simple endpoint.
+
+== Adding the Github Authentication Filter
+
+The main change on the server is to add an additional security filter to handle the "/login/github" requests coming from our new link. We already have a custom authentication filter for Facebook created in our `ssoFilter()` method, so all we need to do is replace that with a composite that can handle more than one authentication path:
+
+.SocialApplication.java
+[source,java]
+----
+private Filter ssoFilter() {
+
+  CompositeFilter filter = new CompositeFilter();
+  List<Filter> filters = new ArrayList<>();
+
+  OAuth2ClientAuthenticationProcessingFilter facebookFilter = new OAuth2ClientAuthenticationProcessingFilter("/login/facebook");
+  OAuth2RestTemplate facebookTemplate = new OAuth2RestTemplate(facebook(), oauth2ClientContext);
+  facebookFilter.setRestTemplate(facebookTemplate);
+  UserInfoTokenServices tokenServices = new UserInfoTokenServices(facebookResource().getUserInfoUri(), facebook().getClientId());
+  tokenServices.setRestTemplate(facebookTemplate);
+  facebookFilter.setTokenServices(tokenServices);
+  filters.add(facebookFilter);
+
+  OAuth2ClientAuthenticationProcessingFilter githubFilter = new OAuth2ClientAuthenticationProcessingFilter("/login/github");
+  OAuth2RestTemplate githubTemplate = new OAuth2RestTemplate(github(), oauth2ClientContext);
+  githubFilter.setRestTemplate(githubTemplate);
+  tokenServices = new UserInfoTokenServices(githubResource().getUserInfoUri(), github().getClientId());
+  tokenServices.setRestTemplate(githubTemplate);
+  githubFilter.setTokenServices(tokenServices);
+  filters.add(githubFilter);
+
+  filter.setFilters(filters);
+  return filter;
+
+}
+----
+
+where the code from our old `ssoFilter()` has been duplicated, once for Facebook and once for Github, and the two filters merged into a composite.
+
+Note that the `facebook()` and `facebookResource()` methods have been supplemented with similar methods `github()` and `githubResource()`:
+
+.SocialApplication.java
+[source,java]
+----
+@Bean
+@ConfigurationProperties("github.client")
+public AuthorizationCodeResourceDetails github() {
+	return new AuthorizationCodeResourceDetails();
+}
+
+@Bean
+@ConfigurationProperties("github.resource")
+public ResourceServerProperties githubResource() {
+	return new ResourceServerProperties();
+}
+----
+
+and the corresponding configuration:
+
+.application.yml
+[source,yaml]
+----
+github:
+  client:
+    clientId: bd1c0a783ccdd1c9b9e4
+    clientSecret: 1a9030fbca47a5b2c28e92f19050bb77824b5ad1
+    accessTokenUri: https://github.com/login/oauth/access_token
+    userAuthorizationUri: https://github.com/login/oauth/authorize
+    clientAuthenticationScheme: form
+  resource:
+    userInfoUri: https://api.github.com/user
+----
+
+The client details here are registered with https://github.com/settings/developers[Github], also with the address `localhost:8080` (same as for Facebook).
+
+The app is now ready to run and gives the user the choice between authenticating with Facebook or Github.
+
+== How to Add a Local User Database
+
+Many applications need to hold data about their users locally, even if authentication is delegated to an external provider.
+We don't show the code here, but it is easy to do in two steps.
+
+1. Choose a backend for your database, and set up some repositories (e.g. using Spring Data) for a custom `User` object that suits your needs and can be populated, fully or partially, from the external authentication.
+
+2. Provision a `User` object for each unique user that logs in by inspecting the repository in your `/user` endpoint.
+If there is already a user with the identity of the current `Principal`, it can be updated, otherwise created.
+
+Hint: add a field in the `User` object to link to a unique identifier in the external provider (not the user's name, but something that is unique to the account in the external provider).

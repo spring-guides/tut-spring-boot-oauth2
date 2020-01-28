@@ -16,7 +16,7 @@
 <body>
     <h1>Login</h1>
     <div class="container unauthenticated">
-        With GitHub: <a href="/oauth2/authorization/github">click here</a>
+        With Facebook: <a href="/login">click here</a>
     </div>
     <div class="container authenticated" style="display: none">
         Logged in as: <span id="user"></span>
@@ -42,7 +42,7 @@
                 }
               });
           $.get("/user", function(data) {
-            $("#user").html(data.name);
+            $("#user").html(data.userAuthentication.details.name);
             $(".unauthenticated").hide();
             $(".authenticated").show();
           });

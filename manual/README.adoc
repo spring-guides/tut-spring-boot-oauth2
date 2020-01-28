@@ -1,0 +1,148 @@
+[[_social_login_manual]]
+= Manual Configuration of OAuth2 Client
+
+In this section we modify the <<_social_login_logout,logout>> app we already built by picking apart the "magic" in the `@EnableOAuth2Sso` annotation, manually configuring everything in there to make it explicit.
+
+== Clients and Authentication
+
+There are 2 features behind `@EnableOAuth2Sso`: the OAuth2 client, and the authentication.
+The client is re-usable, so you can also use it to interact with the OAuth2 resources that your Authorization Server (in this case Facebook) provides (in this case the https://developers.facebook.com/docs/graph-api[Graph API]).
+The authentication piece aligns your app with the rest of Spring Security, so once the dance with Facebook is over your app behaves exactly like any other secure Spring app.
+
+The client piece is provided by Spring Security OAuth2 and switched on by a different annotation `@EnableOAuth2Client`.
+So the first step in this transformation is to remove the `@EnableOAuth2Sso` and replace it with the lower level annotation:
+
+.SocialApplication
+[source,java]
+----
+@SpringBootApplication
+@EnableOAuth2Client
+@RestController
+public class SocialApplication extends WebSecurityConfigurerAdapter {
+  ...
+}
+----
+
+Once that is done we have some stuff created for us that will be useful.
+First off we can inject an `OAuth2ClientContext` and use it to build an authentication filter that we add to our security configuration:
+
+.SocialApplication
+[source,java]
+----
+@SpringBootApplication
+@EnableOAuth2Client
+@RestController
+public class SocialApplication extends WebSecurityConfigurerAdapter {
+
+  @Autowired
+  OAuth2ClientContext oauth2ClientContext;
+
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    http.antMatcher("/**")
+      ...
+      .and().addFilterBefore(ssoFilter(), BasicAuthenticationFilter.class);
+  }
+
+  ...
+
+}
+----
+
+this filter is created in new method where we use the `OAuth2ClientContext`:
+
+.SocialApplication
+[source,java]
+----
+private Filter ssoFilter() {
+  OAuth2ClientAuthenticationProcessingFilter facebookFilter = new OAuth2ClientAuthenticationProcessingFilter("/login/facebook");
+  OAuth2RestTemplate facebookTemplate = new OAuth2RestTemplate(facebook(), oauth2ClientContext);
+  facebookFilter.setRestTemplate(facebookTemplate);
+  UserInfoTokenServices tokenServices = new UserInfoTokenServices(facebookResource().getUserInfoUri(), facebook().getClientId());
+  tokenServices.setRestTemplate(facebookTemplate);
+  facebookFilter.setTokenServices(tokenServices);
+  return facebookFilter;
+}
+----
+
+the filter also needs to know about the client registration with Facebook:
+
+.SocialApplication
+[source,java]
+----
+
+  @Bean
+  @ConfigurationProperties("facebook.client")
+  public AuthorizationCodeResourceDetails facebook() {
+    return new AuthorizationCodeResourceDetails();
+  }
+----
+
+and to complete the authentication it needs to know where the user info endpoint is in Facebook:
+
+.SocialApplication
+[source,java]
+----
+  @Bean
+  @ConfigurationProperties("facebook.resource")
+  public ResourceServerProperties facebookResource() {
+    return new ResourceServerProperties();
+  }
+----
+
+Note that with both these "static" data objects (`facebook()` and `facebookResource()`) we used a `@Bean` decorated as `@ConfigurationProperties`.
+That means that we can convert the `application.yml` to a slightly new format, where the prefix for configuration is `facebook` instead of `security.oauth2`:
+
+.application.yml
+[source,yaml]
+----
+facebook:
+  client:
+    clientId: 233668646673605
+    clientSecret: 33b17e044ee6a4fa383f46ec6e28ea1d
+    accessTokenUri: https://graph.facebook.com/oauth/access_token
+    userAuthorizationUri: https://www.facebook.com/dialog/oauth
+    tokenName: oauth_token
+    authenticationScheme: query
+    clientAuthenticationScheme: form
+  resource:
+    userInfoUri: https://graph.facebook.com/me      
+----
+
+Finally, we changed the path to the login to be facebook-specific in the  `Filter` declaration above, so we need to make the same change in the HTML:
+
+.index.html
+[source,html]
+----
+<h1>Login</h1>
+<div class="container unauthenticated">
+	<div>
+	With Facebook: <a href="/login/facebook">click here</a>
+	</div>
+</div>
+----
+
+== Handling the Redirects
+
+The last change we need to make is to explicitly support the redirects from our app to Facebook.
+This is handled in Spring OAuth2 with a servlet `Filter`, and the filter is already available in the application context because we used `@EnableOAuth2Client`.
+All that is needed is to wire the filter up so that it gets called in the right order in our Spring Boot application.
+To do that we need a `FilterRegistrationBean`:
+
+.SocialApplication.java
+[source,java]
+----
+@Bean
+	public FilterRegistrationBean<OAuth2ClientContextFilter> oauth2ClientFilterRegistration(OAuth2ClientContextFilter filter) {
+		FilterRegistrationBean<OAuth2ClientContextFilter> registration = new FilterRegistrationBean<OAuth2ClientContextFilter>();
+		registration.setFilter(filter);
+		registration.setOrder(-100);
+		return registration;
+	}
+----
+
+We autowire the already available filter, and register it with a sufficiently low order that it comes *before* the main Spring Security filter.
+In this way we can use it to handle redirects signaled by exceptions in authentication requests.
+
+With these changes in place the app is good to go, and at runtime is equivalent to the <<_social_login_logout,logout>> sample we built in the last section.
+Breaking the configuration down and making it explicit teaches us that there is nothing magical about what Spring Boot is doing (it's just configuration boiler plate), and it also prepares our application for extending the features provided automatically out of the box, adding our own opinions and business requirements.
