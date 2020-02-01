@@ -106,7 +106,7 @@ public OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService(WebCli
     DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
     return request -> {
         OAuth2User user = delegate.loadUser(request);
-        if (!"github".equals(request.getClientRegistration.getRegistrationId())) {
+        if (!"github".equals(request.getClientRegistration().getRegistrationId())) {
         	return user;
         }
 
