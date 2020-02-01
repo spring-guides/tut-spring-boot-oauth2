@@ -60,7 +60,7 @@ public class SocialApplication {
   
     @GetMapping("/user")
     public Map<String, Object> user(@AuthenticationPrincipal OAuth2User principal) {
-        Collections.singletonMap("name", principal.getAttribute("name"));
+        return Collections.singletonMap("name", principal.getAttribute("name"));
     }
 
     public static void main(String[] args) {
