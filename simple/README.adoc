@@ -122,13 +122,14 @@ Then, to make the link to GitHub, add the following to your `application.yml`:
 .application.yml
 [source,yaml]
 ----
-security:
-  oauth2:
-    client:
-      registration:
-        github:
-          clientId: github-client-id
-          clientSecret: github-client-secret
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            clientId: github-client-id
+            clientSecret: github-client-secret
 # ...
 ----
 
