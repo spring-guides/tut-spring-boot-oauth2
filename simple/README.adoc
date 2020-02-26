@@ -125,11 +125,11 @@ Then, to make the link to GitHub, add the following to your `application.yml`:
 spring:
   security:
     oauth2:
-	  client:
-	    registration:
-		  github:
-		    clientId: github-client-id
-		    clientSecret: github-client-secret
+      client:
+        registration:
+          github:
+            clientId: github-client-id
+            clientSecret: github-client-secret
 # ...
 ----
 
