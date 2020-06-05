@@ -95,7 +95,7 @@ To spice things up a bit, you can extend the authentication rule to reject users
 You can use the GitHub API to find out more about the user, so you'll just need to plug that into the right part of the authentication process.
 
 Fortunately, for such a simple use case, Spring Boot has provided an easy extension point:
-If you declare a `@Bean` of type `OAuth2UserService`, it will be used identify the user principal.
+If you declare a `@Bean` of type `OAuth2UserService`, it will be used to identify the user principal.
 You can use that hook to assert the the user is in the correct organization, and throw an exception if not:
 
 .SocialApplication.java
