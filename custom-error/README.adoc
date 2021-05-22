@@ -77,7 +77,7 @@ Then, you can add a simple `/error` controller, like this one:
 [source,java]
 ----
 @GetMapping("/error")
-public String error() {
+public String error(HttpServletRequest request) {
 	String message = (String) request.getSession().getAttribute("error.message");
 	request.getSession().removeAttribute("error.message");
 	return message;
