@@ -40,13 +40,13 @@ Now we can switch over to the server side to implement that endpoint.
 == Adding a Logout Endpoint
 
 Spring Security has built in support for a `/logout` endpoint which will do the right thing for us (clear the session and invalidate the cookie).
-To configure the endpoint we simply extend the existing `configure()` method in our `WebSecurityConfigurerAdapter`:
+To configure the endpoint we simply extend the existing `filterChain()` bean:
 
 .SocialApplication.java
 [source,java]
 ----
-@Override
-protected void configure(HttpSecurity http) throws Exception {
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 	// @formatter:off
     http
         // ... existing code here
@@ -66,13 +66,13 @@ For instance, in Angular, the front end would like the server to send it a cooki
 We can implement the same behaviour with our simple jQuery client, and then the server-side changes will work with other front end implementations with no or very few changes.
 To teach Spring Security about this we need to add a filter that creates the cookie.
 
-In the `WebSecurityConfigurerAdapter` we do the following:
+In the `filterChain` bean we do the following:
 
 .SocialApplication.java
 [source,java]
 ----
-@Override
-protected void configure(HttpSecurity http) throws Exception {
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 	// @formatter:off
     http
         // ... existing code here
