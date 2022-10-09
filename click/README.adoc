@@ -79,36 +79,36 @@ WARNING: It's not a great idea to return a whole `OAuth2User` in an endpoint sin
 There's one final change you'll need to make.
 
 This app will now work fine and authenticate as before, but it's still going to redirect before showing the page.
-To make the link visible, we also need to switch off the security on the home page by extending `WebSecurityConfigurerAdapter`:
+To make the link visible, we also need to switch off the security on the home page by registering a SecurityFilterChain bean:
 
 .SocialApplication
 [source,java]
 ----
 @SpringBootApplication
 @RestController
-public class SocialApplication extends WebSecurityConfigurerAdapter {
+public class SocialApplication {
   
     // ...
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-    	// @formatter:off
-        http
-            .authorizeRequests(a -> a
-                .antMatchers("/", "/error", "/webjars/**").permitAll()
-                .anyRequest().authenticated()
-            )
-            .exceptionHandling(e -> e
-                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
-            )
-            .oauth2Login();
-        // @formatter:on
-    }
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		// @formatter:off
+		http
+				.authorizeRequests(a -> a
+						.antMatchers("/", "/error", "/webjars/**").permitAll()
+						.anyRequest().authenticated()
+				)
+				.exceptionHandling(e -> e
+						.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+				)
+				.oauth2Login();
+		return http.build();
+		// @formatter:on
+	}
 
 }
 ----
 
-Spring Boot attaches special meaning to a `WebSecurityConfigurerAdapter` on the class annotated with `@SpringBootApplication`:
 It uses it to configure the security filter chain that carries the OAuth 2.0 authentication processor.
 
 The above configuration indicates a whitelist of permitted endpoints, with every other endpoint requiring authentication.
