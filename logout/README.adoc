@@ -40,14 +40,14 @@ Now we can switch over to the server side to implement that endpoint.
 == Adding a Logout Endpoint
 
 Spring Security has built in support for a `/logout` endpoint which will do the right thing for us (clear the session and invalidate the cookie).
-To configure the endpoint we simply extend the existing `configure()` method in our `WebSecurityConfigurerAdapter`:
+To configure the endpoint we simply extend the existing `securityFilterChain()` method in our `SocialApplication`:
 
 .SocialApplication.java
 [source,java]
 ----
-@Override
-protected void configure(HttpSecurity http) throws Exception {
-	// @formatter:off
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		// @formatter:off
     http
         // ... existing code here
         .logout(l -> l
@@ -66,24 +66,59 @@ For instance, in Angular, the front end would like the server to send it a cooki
 We can implement the same behaviour with our simple jQuery client, and then the server-side changes will work with other front end implementations with no or very few changes.
 To teach Spring Security about this we need to add a filter that creates the cookie.
 
-In the `WebSecurityConfigurerAdapter` we do the following:
+In the `SecurityFilterChain` we do the following:
 
 .SocialApplication.java
 [source,java]
 ----
-@Override
-protected void configure(HttpSecurity http) throws Exception {
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	// @formatter:off
     http
         // ... existing code here
         .csrf(c -> c
             .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+            .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
         )
         // ... existing code here
     // @formatter:on
 }
-----
 
+final class SpaCsrfTokenRequestHandler implements CsrfTokenRequestHandler {
+	private final CsrfTokenRequestHandler plain = new CsrfTokenRequestAttributeHandler();
+	private final CsrfTokenRequestHandler xor = new XorCsrfTokenRequestAttributeHandler();
+
+	@Override
+	public void handle(HttpServletRequest request, HttpServletResponse response, Supplier<CsrfToken> csrfToken) {
+		/*
+		 * Always use XorCsrfTokenRequestAttributeHandler to provide BREACH protection of
+		 * the CsrfToken when it is rendered in the response body.
+		 */
+		this.xor.handle(request, response, csrfToken);
+		/*
+		 * Render the token value to a cookie by causing the deferred token to be loaded.
+		 */
+		csrfToken.get();
+	}
+
+	@Override
+	public String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken) {
+		String headerValue = request.getHeader(csrfToken.getHeaderName());
+		/*
+		 * If the request contains a request header, use CsrfTokenRequestAttributeHandler
+		 * to resolve the CsrfToken. This applies when a single-page application includes
+		 * the header value automatically, which was obtained via a cookie containing the
+		 * raw CsrfToken.
+		 *
+		 * In all other cases (e.g. if the request contains a request parameter), use
+		 * XorCsrfTokenRequestAttributeHandler to resolve the CsrfToken. This applies
+		 * when a server-side rendered form includes the _csrf request parameter as a
+		 * hidden input.
+		 */
+		return (StringUtils.hasText(headerValue) ? this.plain : this.xor).resolveCsrfTokenValue(request, csrfToken);
+	}
+}
+----
+Refer to https://docs.spring.io/spring-security/reference/servlet/exploits/csrf.html#csrf-integration-javascript-spa[spring security documentation for logout] for Single Page Application (SPA).
 == Adding the CSRF Token in the Client
 
 Since we are not using a higher level framework in this sample, you'll need to explicitly add the CSRF token, which you just made available as a cookie from the backend.

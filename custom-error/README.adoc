@@ -56,11 +56,14 @@ To achieve this, you can configure an `AuthenticationFailureHandler`, like so:
 
 [source,java]
 ----
-protected void configure(HttpSecurity http) throws Exception {
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	SimpleUrlAuthenticationFailureHandler handler = new SimpleUrlAuthenticationFailureHandler("/");
+
 	// @formatter:off
 	http
 	    // ... existing configuration
 	    .oauth2Login(o -> o
+        	.defaultSuccessUrl("/", true)   // Always redirect to home after login
             .failureHandler((request, response, exception) -> {
 			    request.getSession().setAttribute("error.message", exception.getMessage());
 			    handler.onAuthenticationFailure(request, response, exception);
