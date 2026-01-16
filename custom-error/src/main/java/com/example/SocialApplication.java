@@ -18,15 +18,15 @@ package com.example;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -49,7 +49,7 @@ import static org.springframework.security.oauth2.client.web.reactive.function.c
 
 @SpringBootApplication
 @Controller
-public class SocialApplication extends WebSecurityConfigurerAdapter {
+public class SocialApplication {
 
 	@Bean
 	public WebClient rest(ClientRegistrationRepository clients, OAuth2AuthorizedClientRepository authz) {
@@ -100,14 +100,14 @@ public class SocialApplication extends WebSecurityConfigurerAdapter {
 		return message;
 	}
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		SimpleUrlAuthenticationFailureHandler handler = new SimpleUrlAuthenticationFailureHandler("/");
 
 		// @formatter:off
-		http.antMatcher("/**")
-			.authorizeRequests(a -> a
-				.antMatchers("/", "/error", "/webjars/**").permitAll()
+		http.securityMatcher("/**")
+			.authorizeHttpRequests(a -> a
+				.requestMatchers("/", "/error", "/webjars/**").permitAll()
 				.anyRequest().authenticated()
 			)
 			.exceptionHandling(e -> e
@@ -126,6 +126,7 @@ public class SocialApplication extends WebSecurityConfigurerAdapter {
 				})
 			);
 		// @formatter:on
+		return http.build();
 	}
 
 	public static void main(String[] args) {
