@@ -23,7 +23,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.SecurityFilterChain;
@@ -75,7 +77,7 @@ public class SocialApplication {
 					.get().uri(url)
 					.attributes(oauth2AuthorizedClient(client))
 					.retrieve()
-					.bodyToMono(List.class)
+					.bodyToMono(new ParameterizedTypeReference<List<Map<String, Object>>>() {})
 					.block();
 
 			if (orgs.stream().anyMatch(org -> "spring-projects".equals(org.get("login")))) {
