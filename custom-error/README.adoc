@@ -57,6 +57,8 @@ To achieve this, you can configure an `AuthenticationFailureHandler`, like so:
 [source,java]
 ----
 protected void configure(HttpSecurity http) throws Exception {
+    SimpleUrlAuthenticationFailureHandler handler = new SimpleUrlAuthenticationFailureHandler("/");
+    
 	// @formatter:off
 	http
 	    // ... existing configuration
