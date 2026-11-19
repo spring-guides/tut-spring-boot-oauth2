@@ -1,0 +1,49 @@
+name: Mockatoo
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+      - name: Verify simple module
+        env:
+          MOCKATOO_TEST_EMAIL: ${{ secrets.MOCKATOO_TEST_EMAIL }}
+          MOCKATOO_TEST_PASSWORD: ${{ secrets.MOCKATOO_TEST_PASSWORD }}
+        run: |
+          if [ -z "$MOCKATOO_TEST_EMAIL" ] || [ -z "$MOCKATOO_TEST_PASSWORD" ]; then
+            echo "::notice::Mockatoo credentials are not configured; the hosted sign-in test will be skipped."
+          fi
+          ./mvnw -pl simple verify
+      - name: Confirm hosted sign-in test
+        env:
+          MOCKATOO_TEST_EMAIL: ${{ secrets.MOCKATOO_TEST_EMAIL }}
+          MOCKATOO_TEST_PASSWORD: ${{ secrets.MOCKATOO_TEST_PASSWORD }}
+        run: |
+          if [ -z "$MOCKATOO_TEST_EMAIL" ] || [ -z "$MOCKATOO_TEST_PASSWORD" ]; then
+            echo "::notice::Mockatoo credentials are not configured; hosted sign-in confirmation skipped."
+            exit 0
+          fi
+          python3 - <<'PY'
+          import xml.etree.ElementTree as ET
+
+          report = ET.parse("simple/target/surefire-reports/TEST-com.example.MockatooTests.xml")
+          test = next(case for case in report.iter("testcase")
+                      if case.get("name") == "githubSignInWorksAgainstMockatoo")
+          if any(child.tag in {"failure", "error", "skipped"} for child in test):
+              raise SystemExit("githubSignInWorksAgainstMockatoo did not pass")
+          print("::notice::githubSignInWorksAgainstMockatoo passed against the hosted Mockatoo service")
+          PY
