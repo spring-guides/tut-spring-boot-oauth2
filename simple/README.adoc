@@ -109,6 +109,9 @@ Enter an app name and description.
 Then, enter your app's home page, which should be http://localhost:8080, in this case.
 Finally, indicate the Authorization callback URL as `http://localhost:8080/login/oauth2/code/github` and click _Register Application_.
 
+TIP: To run this sample without registering a GitHub app, use the opt-in Mockatoo profile: `mvn spring-boot:run -Dspring-boot.run.profiles=mockatoo`.
+It points the GitHub registration at https://mockatoo.globalunderdog.com[Mockatoo], a free hosted mock OAuth provider, and leaves the default configuration above unchanged.
+
 The OAuth redirect URI is the path in the application that the end-user's user-agent is redirected back to after they have authenticated with GitHub and have granted access to the application on the _Authorize application_ page.
 
 TIP: The default redirect URI template is `{baseUrl}/login/oauth2/code/{registrationId}`.

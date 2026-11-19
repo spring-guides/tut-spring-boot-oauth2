@@ -17,6 +17,9 @@ Follow the instructions on the https://developers.google.com/identity/protocols/
 
 After completing the "Obtain OAuth 2.0 credentials" instructions, you should have a new OAuth Client with credentials consisting of a Client ID and a Client Secret.
 
+TIP: To run this sample without registering GitHub or Google apps, use the opt-in Mockatoo profile: `mvn spring-boot:run -Dspring-boot.run.profiles=mockatoo`.
+It points both registrations at https://mockatoo.globalunderdog.com[Mockatoo], a free hosted mock OAuth provider, and leaves the default configuration above unchanged.
+
 [[google-redirect-uri]]
 == Setting the redirect URI
 
