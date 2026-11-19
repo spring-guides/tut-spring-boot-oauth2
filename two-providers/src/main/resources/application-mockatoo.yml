@@ -1,0 +1,16 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          github: &mock-client
+            client-id: mockatoo
+            client-secret: mockatoo-secret
+          google: *mock-client
+        provider:
+          github:
+            authorization-uri: https://app.mockatoo.globalunderdog.com/github/login/oauth/authorize
+            token-uri: https://app.mockatoo.globalunderdog.com/github/login/oauth/access_token
+            user-info-uri: https://app.mockatoo.globalunderdog.com/github/api/v3/user
+          google:
+            issuer-uri: https://app.mockatoo.globalunderdog.com/google
